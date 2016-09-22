@@ -37,7 +37,7 @@
 
        FILE SECTION.
        FD  NOVTIMES1 LABEL RECORD IS STANDARD
-           VALUE OF FILE-ID IS "NovTimes1.txt".
+           VALUE OF FILE-ID IS "files/NovTimes1.txt".
        01  NOV1.
            03 NOV1-NUMERO      PIC X(5).
            03 NOV1-FECHA       PIC 9(8).
@@ -46,7 +46,7 @@
            03 NOV1-HORAS       PIC 9(2)V99.
 
        FD  NOVTIMES2 LABEL RECORD IS STANDARD
-           VALUE OF FILE-ID IS "NovTimes2.txt".
+           VALUE OF FILE-ID IS "files/NovTimes2.txt".
        01  NOV2.
            03 NOV2-NUMERO      PIC X(5).
            03 NOV2-FECHA       PIC 9(8).
@@ -55,7 +55,7 @@
            03 NOV2-HORAS       PIC 9(2)V99.
 
        FD  NOVTIMES3 LABEL RECORD IS STANDARD
-           VALUE OF FILE-ID IS "NovTimes3.txt".
+           VALUE OF FILE-ID IS "files/NovTimes3.txt".
        01  NOV3.
            03 NOV3-NUMERO      PIC X(5).
            03 NOV3-FECHA       PIC 9(8).
@@ -64,7 +64,7 @@
            03 NOV3-HORAS       PIC 9(2)V99.
 
        FD  PROFESORES LABEL RECORD IS STANDARD
-           VALUE OF FILE-ID IS "Profesores.txt".
+           VALUE OF FILE-ID IS "files/Profesores.txt".
        01  PROF.
            03 PROF-NUMERO  PIC X(5).
            03 PROF-DNI     PIC 9(8).
@@ -73,7 +73,7 @@
            03 PROF-TEL     PIC X(20).
 
        FD  SUCURSALES LABEL RECORD IS STANDARD
-           VALUE OF FILE-ID IS "Sucursales.txt".
+           VALUE OF FILE-ID IS "files/Sucursales.txt".
        01  SUC.
            03 SUC-SUCURSAL PIC X(03).
            03 SUC-RAZON    PIC X(25).
@@ -82,7 +82,7 @@
            03 SUC-CUIT     PIC 9(11).
 
        FD  TIPOS_CLASE LABEL RECORD IS STANDARD
-           VALUE OF FILE-ID IS "TiposClase.txt".
+           VALUE OF FILE-ID IS "files/TiposClase.txt".
        01  TIP.
            03 TIP-TIP_CLASE    PIC X(04).
            03 TIP-DESC         PIC X(20).
@@ -110,12 +110,12 @@
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
            PERFORM INICIO.
-           PERFORM LEO-NOVTIMES1.
-           PERFORM LEO-NOVTIMES2.
-           PERFORM LEO-NOVTIMES3.
-           PERFORM LEO-PROFESORES.
-           PERFORM LEO-SUCURSALES.
-           PERFORM LEO-TIPOS_CLASE.
+           PERFORM LEO-NOVTIMES1 UNTIL NOV1-EOF='SI'.
+           PERFORM LEO-NOVTIMES2 UNTIL NOV2-EOF='SI'.
+           PERFORM LEO-NOVTIMES3 UNTIL NOV3-EOF='SI'.
+           PERFORM LEO-PROFESORES UNTIL PROF-EOF='SI'.
+           PERFORM LEO-SUCURSALES UNTIL SUC-EOF='SI'.
+           PERFORM LEO-TIPOS_CLASE  UNTIL TIP-EOF='SI'.
            PERFORM FIN.
            STOP RUN.
 
@@ -192,7 +192,8 @@
                DISPLAY "ERROR EN READ Profesores: " PROF-ESTADO
                PERFORM FIN
                STOP RUN
-           END-IF.
+           END-IF
+           DISPLAY PROF.
 
        LEO-SUCURSALES.
            READ SUCURSALES AT END MOVE "SI" TO SUC-EOF.
