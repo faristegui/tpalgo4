@@ -1,3 +1,3 @@
 001Sucursal Recoleta GYM    Av. Pueyrredon 345  011-4675-5768       30289755637
-001Sucursal Almagro GYM     Av. Medrano 3514    011-5789-3324       30476547783
-001Sucursal Microcentro GYM C. Pellegrini 1345  011-9102-5849       30987444329
+002Sucursal Almagro GYM     Av. Medrano 3514    011-5789-3324       30476547783
+003Sucursal Microcentro GYM C. Pellegrini 1345  011-9102-5849       30987444329
