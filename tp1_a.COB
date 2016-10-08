@@ -55,29 +55,42 @@
        FD  NOVTIMES1 LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/NovTimes1.txt".
        01  REG-NOV1.
-           03 REG-NOV1-NUMERO      PIC X(5).
-           03 REG-NOV1-FECHA       PIC 9(8).
-           03 REG-NOV1-SUCURSAL    PIC X(3).
-           03 REG-NOV1-TIP_CLASE   PIC X(4).
-           03 REG-NOV1-HORAS       PIC 9(2)V99.
+           03 REG-NOV1-NUMERO                  PIC X(5).
+           03 REG-NOV1-FECHA                   PIC 9(8).
+           03 FILLER REDEFINES REG-NOV1-FECHA.
+               05 REG-NOV1-FECHA-AA            PIC 9(4).
+               05 REG-NOV1-FECHA-MM            PIC 9(2).
+               05 REG-NOV1-FECHA-DD            PIC 9(2).
+           03 REG-NOV1-SUCURSAL                PIC X(3).
+           03 REG-NOV1-TIP_CLASE               PIC X(4).
+           03 REG-NOV1-HORAS                   PIC 9(2)V99.
+
 
        FD  NOVTIMES2 LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/NovTimes2.txt".
        01  REG-NOV2.
-           03 REG-NOV2-NUMERO      PIC X(5).
-           03 REG-NOV2-FECHA       PIC 9(8).
-           03 REG-NOV2-SUCURSAL    PIC X(3).
-           03 REG-NOV2-TIP_CLASE   PIC X(4).
-           03 REG-NOV2-HORAS       PIC 9(2)V99.
+           03 REG-NOV2-NUMERO                  PIC X(5).
+           03 REG-NOV2-FECHA                   PIC 9(8).
+           03 FILLER REDEFINES REG-NOV2-FECHA.
+               05 REG-NOV2-FECHA-AA            PIC 9(4).
+               05 REG-NOV2-FECHA-MM            PIC 9(2).
+               05 REG-NOV2-FECHA-DD            PIC 9(2).
+           03 REG-NOV2-SUCURSAL                PIC X(3).
+           03 REG-NOV2-TIP_CLASE               PIC X(4).
+           03 REG-NOV2-HORAS                   PIC 9(2)V99.
 
        FD  NOVTIMES3 LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/NovTimes3.txt".
        01  REG-NOV3.
-           03 REG-NOV3-NUMERO      PIC X(5).
-           03 REG-NOV3-FECHA       PIC 9(8).
-           03 REG-NOV3-SUCURSAL    PIC X(3).
-           03 REG-NOV3-TIP_CLASE   PIC X(4).
-           03 REG-NOV3-HORAS       PIC 9(2)V99.
+           03 REG-NOV3-NUMERO                  PIC X(5).
+           03 REG-NOV3-FECHA                   PIC 9(8).
+           03 FILLER REDEFINES REG-NOV3-FECHA.
+               05 REG-NOV3-FECHA-AA            PIC 9(4).
+               05 REG-NOV3-FECHA-MM            PIC 9(2).
+               05 REG-NOV3-FECHA-DD            PIC 9(2).
+           03 REG-NOV3-SUCURSAL                PIC X(3).
+           03 REG-NOV3-TIP_CLASE               PIC X(4).
+           03 REG-NOV3-HORAS                   PIC 9(2)V99.
 
        FD  NOVTIMES LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/NovTimes.txt".
@@ -90,22 +103,22 @@
 
        WORKING-STORAGE SECTION.
        77  PROF-ESTADO PIC XX.
-       77  PROF-EOF    PIC XX  VALUE   "NO".
+       77  PROF-EOF    PIC XX  VALUE "NO".
 
        77  TIP-ESTADO  PIC XX.
-       77  TIP-EOF     PIC XX  VALUE   "NO".
+       77  TIP-EOF     PIC XX  VALUE "NO".
 
        77  NOV1-ESTADO PIC XX.
-       77  NOV1-EOF    PIC XX  VALUE   "NO".
+       77  NOV1-EOF    PIC XX  VALUE "NO".
 
        77  NOV2-ESTADO PIC XX.
-       77  NOV2-EOF    PIC XX  VALUE   "NO".
+       77  NOV2-EOF    PIC XX  VALUE "NO".
 
        77  NOV3-ESTADO PIC XX.
-       77  NOV3-EOF    PIC XX  VALUE   "NO".
+       77  NOV3-EOF    PIC XX  VALUE "NO".
 
        77  NOV-ESTADO  PIC XX.
-       77  NOV-EOF     PIC XX  VALUE   "NO".
+       77  NOV-EOF     PIC XX  VALUE "NO".
 
        77  WS-TIP-INDICE   PIC 9(4).
        01  TAB-TIP_CLASE.
@@ -138,9 +151,20 @@
            03 WS-NOV-MEN-FECHA     PIC 9(8).
            03 WS-NOV-MEN-SUCURSAL  PIC X(3).
 
+       01  WS-NOV-INV.
+           03 WS-NOV-INV-NUMERO    PIC X(5)    VALUE "ZZZZZ".
+           03 WS-NOV-INV-FECHA     PIC 9(8)    VALUE 99999999.
+           03 WS-NOV-INV-SUCURSAL  PIC X(3)    VALUE "ZZZ".
+           03 WS-NOV-INV-TIP_CLASE PIC X(4)    VALUE "9999".
+           03 WS-NOV-INV-HORAS     PIC 9(2)V99 VALUE 0.
+
        01  WS-NOV-ACT.
            03 WS-NOV-ACT-NUMERO    PIC X(5).
            03 WS-NOV-ACT-FECHA     PIC 9(8).
+           03 FILLER REDEFINES WS-NOV-ACT-FECHA.
+               05 WS-NOV-ACT-FECHA-AA            PIC 9(4).
+               05 WS-NOV-ACT-FECHA-MM            PIC 9(2).
+               05 WS-NOV-ACT-FECHA-DD            PIC 9(2).
            03 WS-NOV-ACT-SUCURSAL  PIC X(3).
            03 WS-NOV-ACT-TIP_CLASE PIC X(4).
            03 WS-NOV-ACT-HORAS     PIC 9(2)V99.
@@ -183,7 +207,11 @@
            03 FILLER PIC X(7)  VALUE "Importe".
 
        01  PTR-NOV-DET.
-           03 PTR-NOV-DET-FECHA        PIC 99/99/9999.
+           03 PTR-NOV-DET-DD           PIC 99.
+           03 FILLER                   PIC X(1)        VALUE "/".
+           03 PTR-NOV-DET-MM           PIC 99.
+           03 FILLER                   PIC X(1)        VALUE "/".
+           03 PTR-NOV-DET-AA           PIC 9999.
            03 FILLER                   PIC X(1)        VALUE SPACES.
            03 PTR-NOV-DET-SUCURSAL     PIC X(3).
            03 FILLER                   PIC X(6)        VALUE SPACES.
@@ -210,7 +238,6 @@
                            AND NOV1-EOF="SI"
                            AND NOV2-EOF="SI"
                            AND NOV3-EOF="SI".
-      *     DISPLAY WS-TOT-GRAL-HORAS.
            PERFORM FIN.
            STOP RUN.
 
@@ -285,6 +312,9 @@
                PERFORM FIN
                STOP RUN
            END-IF.
+           IF (NOV1-EOF = "SI") THEN
+               MOVE WS-NOV-INV TO REG-NOV1
+           END-IF.
 
        LEO-NOVTIMES2.
            READ NOVTIMES2 AT END MOVE "SI" TO NOV2-EOF.
@@ -293,6 +323,9 @@
                PERFORM FIN
                STOP RUN
            END-IF.
+           IF (NOV2-EOF = "SI") THEN
+               MOVE WS-NOV-INV TO REG-NOV2
+           END-IF.
 
        LEO-NOVTIMES3.
            READ NOVTIMES3 AT END MOVE "SI" TO NOV3-EOF.
@@ -300,6 +333,9 @@
                DISPLAY "ERROR EN READ NovTimes3: " NOV3-ESTADO
                PERFORM FIN
                STOP RUN
+           END-IF.
+           IF (NOV3-EOF = "SI") THEN
+               MOVE WS-NOV-INV TO REG-NOV3
            END-IF.
 
        CARGO-TIPOS_CLASE.
@@ -318,7 +354,7 @@
                PERFORM CARGO-PROFESOR
            END-IF.
            MOVE ZERO TO WS-TOT-PROF-HORAS.
-      *     DISPLAY WS-PROF-ACT-NOMBRE.
+           PERFORM IMPRIMO-CAB.
            PERFORM PROC-PROFESOR UNTIL
                            (PROF-EOF="SI"
                            AND NOV1-EOF="SI"
@@ -329,17 +365,17 @@
                            AND REG-NOV2-NUMERO NOT = WS-NOV-MEN-NUMERO
                            AND REG-NOV3-NUMERO NOT = WS-NOV-MEN-NUMERO).
            ADD WS-TOT-PROF-HORAS TO WS-TOT-GRAL-HORAS.
-      *     DISPLAY WS-TOT-PROF-HORAS.
 
        DET-PROFESOR-MEN.
-           MOVE REG-PROF-NUMERO TO WS-NOV-MEN-NUMERO.
-           IF REG-NOV1-NUMERO < WS-NOV-MEN-NUMERO THEN
+           MOVE "ZZZZZ" TO WS-NOV-MEN-NUMERO.
+           MOVE REG-PROF-NUMERO TO WS-NOV-MEN-NUMERO
+           IF (REG-NOV1-NUMERO < WS-NOV-MEN-NUMERO) THEN
                MOVE REG-NOV1-NUMERO TO WS-NOV-MEN-NUMERO
            END-IF.
-           IF REG-NOV2-NUMERO < WS-NOV-MEN-NUMERO THEN
+           IF (REG-NOV2-NUMERO < WS-NOV-MEN-NUMERO) THEN
                MOVE REG-NOV2-NUMERO TO WS-NOV-MEN-NUMERO
            END-IF.
-           IF REG-NOV3-NUMERO < WS-NOV-MEN-NUMERO THEN
+           IF (REG-NOV3-NUMERO < WS-NOV-MEN-NUMERO) THEN
                MOVE REG-NOV3-NUMERO TO WS-NOV-MEN-NUMERO
            END-IF.
 
@@ -351,7 +387,6 @@
        PROC-PROFESOR.
            PERFORM DET-FECHA-MEN.
            MOVE ZERO TO WS-TOT-FECH-HORAS.
-           PERFORM IMPRIMO-CAB.
            PERFORM PROC-FECHA UNTIL
                            (PROF-EOF="SI"
                            AND NOV1-EOF="SI"
@@ -368,12 +403,19 @@
            ADD WS-TOT-FECH-HORAS TO WS-TOT-PROF-HORAS.
 
        DET-FECHA-MEN.
-           MOVE REG-NOV1-FECHA TO WS-NOV-MEN-FECHA.
-           IF REG-NOV2-FECHA < WS-NOV-MEN-FECHA THEN
-               MOVE REG-NOV2-FECHA TO WS-NOV-MEN-FECHA
+           MOVE 99999999 TO WS-NOV-MEN-FECHA.
+           IF (REG-NOV1-NUMERO = WS-NOV-MEN-NUMERO) THEN
+               MOVE REG-NOV1-FECHA TO WS-NOV-MEN-FECHA
            END-IF.
-           IF REG-NOV3-FECHA < WS-NOV-MEN-FECHA THEN
-               MOVE REG-NOV3-FECHA TO WS-NOV-MEN-FECHA
+           IF (REG-NOV2-NUMERO = WS-NOV-MEN-NUMERO) THEN
+               IF (REG-NOV2-FECHA < WS-NOV-MEN-FECHA) THEN
+                   MOVE REG-NOV2-FECHA TO WS-NOV-MEN-FECHA
+               END-IF
+           END-IF.
+           IF (REG-NOV3-NUMERO = WS-NOV-MEN-NUMERO) THEN
+               IF (REG-NOV3-FECHA < WS-NOV-MEN-FECHA) THEN
+                   MOVE REG-NOV3-FECHA TO WS-NOV-MEN-FECHA
+               END-IF
            END-IF.
 
        PROC-FECHA.
@@ -395,12 +437,25 @@
                        OR REG-NOV3-SUCURSAL NOT = WS-NOV-MEN-SUCURSAL.
 
        DET-SUCURSAL-MEN.
-           MOVE REG-NOV1-SUCURSAL TO WS-NOV-MEN-SUCURSAL.
-           IF REG-NOV2-SUCURSAL < WS-NOV-MEN-SUCURSAL THEN
-               MOVE REG-NOV2-SUCURSAL TO WS-NOV-MEN-SUCURSAL
+           MOVE "ZZZ" TO WS-NOV-MEN-SUCURSAL.
+           IF (REG-NOV1-NUMERO = WS-NOV-MEN-NUMERO) THEN
+               IF (REG-NOV1-FECHA = WS-NOV-MEN-FECHA) THEN
+                   MOVE REG-NOV1-SUCURSAL TO WS-NOV-MEN-SUCURSAL
+               END-IF
            END-IF.
-           IF REG-NOV3-SUCURSAL < WS-NOV-MEN-SUCURSAL THEN
-               MOVE REG-NOV3-SUCURSAL TO WS-NOV-MEN-SUCURSAL
+           IF (REG-NOV2-NUMERO = WS-NOV-MEN-NUMERO) THEN
+               IF (REG-NOV2-FECHA = WS-NOV-MEN-FECHA) THEN
+                   IF (REG-NOV2-SUCURSAL < WS-NOV-MEN-SUCURSAL) THEN
+                       MOVE REG-NOV2-SUCURSAL TO WS-NOV-MEN-SUCURSAL
+                   END-IF
+               END-IF
+           END-IF.
+           IF (REG-NOV3-NUMERO = WS-NOV-MEN-NUMERO) THEN
+               IF (REG-NOV3-FECHA = WS-NOV-MEN-FECHA) THEN
+                   IF (REG-NOV3-SUCURSAL < WS-NOV-MEN-SUCURSAL) THEN
+                       MOVE REG-NOV3-SUCURSAL TO WS-NOV-MEN-SUCURSAL
+                   END-IF
+               END-IF
            END-IF.
 
        PROC-NOVTIMES1.
@@ -453,7 +508,9 @@
            DISPLAY PTR-NOV-CAB.
 
        IMPRIMO-NOV.
-           MOVE WS-NOV-ACT-FECHA TO PTR-NOV-DET-FECHA.
+           MOVE WS-NOV-ACT-FECHA-DD TO PTR-NOV-DET-DD.
+           MOVE WS-NOV-ACT-FECHA-MM TO PTR-NOV-DET-MM.
+           MOVE WS-NOV-ACT-FECHA-AA TO PTR-NOV-DET-AA.
            MOVE WS-NOV-ACT-SUCURSAL TO PTR-NOV-DET-SUCURSAL.
            MOVE WS-TIP-ACT-DESC TO PTR-NOV-DET-TIP_CLASE.
            MOVE WS-TIP-ACT-TARIFA TO PTR-NOV-DET-TARIFA.
