@@ -122,10 +122,36 @@
            03 WS-PROF-ACT-NUMERO   PIC X(5).
            03 WS-PROF-ACT-NOMBRE   PIC X(25).
 
+       01  WS-TIP-ACT.
+           03 WS-TIP-ACT-TIP_CLASE PIC X(04).
+           03 WS-TIP-ACT-DESC      PIC X(20).
+           03 WS-TIP-ACT-TARIFA    PIC 9(5)V99.
+
        01  WS-NOV-MEN.
-           03 WS-NOV-MEN-NUMERO    PIC X(5)    VALUE "ZZZZZ".
-           03 WS-NOV-MEN-FECHA     PIC 9(8)    VALUE 99999999.
-           03 WS-NOV-MEN-SUCURSAL  PIC X(3)    VALUE "ZZZ".
+           03 WS-NOV-MEN-NUMERO    PIC X(5).
+           03 WS-NOV-MEN-FECHA     PIC 9(8).
+           03 WS-NOV-MEN-SUCURSAL  PIC X(3).
+
+       01  WS-NOV-ACT.
+           03 WS-NOV-ACT-NUMERO    PIC X(5).
+           03 WS-NOV-ACT-FECHA     PIC 9(8).
+           03 WS-NOV-ACT-SUCURSAL  PIC X(3).
+           03 WS-NOV-ACT-TIP_CLASE PIC X(4).
+           03 WS-NOV-ACT-HORAS     PIC 9(2)V99.
+           03 WS-NOV-ACT-IMPORTE   PIC 9(7)V99.
+
+       01  PTR-NOV.
+           03 PTR-NOV-FECHA        PIC 99/99/9999.
+           03 FILLER               PIC X(4)        VALUE SPACES.
+           03 PTR-NOV-SUCURSAL     PIC X(3).
+           03 FILLER               PIC X(4)        VALUE SPACES.
+           03 PTR-NOV-TIP_CLASE    PIC X(20).
+           03 FILLER               PIC X(4)        VALUE SPACES.
+           03 PTR-NOV-TARIFA       PIC ZZZZ9,99.
+           03 FILLER               PIC X(4)        VALUE SPACES.
+           03 PTR-NOV-HORAS        PIC Z9,99.
+           03 FILLER               PIC X(4)        VALUE SPACES.
+           03 PTR-NOV-IMPORTE      PIC ZZZZZZ9,99.
 
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
@@ -141,7 +167,7 @@
                            AND NOV1-EOF="SI"
                            AND NOV2-EOF="SI"
                            AND NOV3-EOF="SI".
-           DISPLAY WS-TOT-GRAL-HORAS.
+      *     DISPLAY WS-TOT-GRAL-HORAS.
            PERFORM FIN.
            STOP RUN.
 
@@ -231,12 +257,12 @@
        CARGO-TIPOS_CLASE.
            PERFORM LEO-TIPOS_CLASE.
            MOVE 1 TO WS-TIP-INDICE.
-           PERFORM CARGO-TIPO_CLASE UNTIL TIP-EOF="SI".
-
-       CARGO-TIPO_CLASE.
-           MOVE REG-TIP TO TAB-TIP(WS-TIP-INDICE).
-           ADD 1 TO WS-TIP-INDICE.
-           PERFORM LEO-TIPOS_CLASE.
+           PERFORM
+           UNTIL TIP-EOF="SI"
+               MOVE REG-TIP TO TAB-TIP(WS-TIP-INDICE)
+               ADD 1 TO WS-TIP-INDICE
+               PERFORM LEO-TIPOS_CLASE
+           END-PERFORM.
 
        PROC-GENERAL.
            PERFORM DET-PROFESOR-MEN.
@@ -244,7 +270,7 @@
                PERFORM CARGO-PROFESOR
            END-IF.
            MOVE ZERO TO WS-TOT-PROF-HORAS.
-           DISPLAY WS-PROF-ACT-NOMBRE.
+      *     DISPLAY WS-PROF-ACT-NOMBRE.
            PERFORM PROC-PROFESOR UNTIL
                            (PROF-EOF="SI"
                            AND NOV1-EOF="SI"
@@ -255,7 +281,7 @@
                            AND REG-NOV2-NUMERO NOT = WS-NOV-MEN-NUMERO
                            AND REG-NOV3-NUMERO NOT = WS-NOV-MEN-NUMERO).
            ADD WS-TOT-PROF-HORAS TO WS-TOT-GRAL-HORAS.
-           DISPLAY WS-TOT-PROF-HORAS.
+      *     DISPLAY WS-TOT-PROF-HORAS.
 
        DET-PROFESOR-MEN.
            MOVE REG-PROF-NUMERO TO WS-NOV-MEN-NUMERO.
@@ -329,25 +355,52 @@
            END-IF.
 
        PROC-NOVTIMES1.
-           ADD REG-NOV1-HORAS TO WS-TOT-FECH-HORAS.
-           MOVE REG-NOV1 TO REG-NOV.
-           WRITE REG-NOV.
-           DISPLAY REG-NOV1.
+           MOVE REG-NOV1 TO WS-NOV-ACT.
+           PERFORM PROC-NOVTIMES.
            PERFORM LEO-NOVTIMES1.
 
        PROC-NOVTIMES2.
-           ADD REG-NOV2-HORAS TO WS-TOT-FECH-HORAS.
-           MOVE REG-NOV2 TO REG-NOV.
-           WRITE REG-NOV.
-           DISPLAY REG-NOV2.
+           MOVE REG-NOV2 TO WS-NOV-ACT.
+           PERFORM PROC-NOVTIMES.
            PERFORM LEO-NOVTIMES2.
 
        PROC-NOVTIMES3.
-           ADD REG-NOV3-HORAS TO WS-TOT-FECH-HORAS.
-           MOVE REG-NOV3 TO REG-NOV.
-           WRITE REG-NOV.
-           DISPLAY REG-NOV3.
+           MOVE REG-NOV3 TO WS-NOV-ACT.
+           PERFORM PROC-NOVTIMES.
            PERFORM LEO-NOVTIMES3.
+
+       PROC-NOVTIMES.
+           ADD WS-NOV-ACT-HORAS TO WS-TOT-FECH-HORAS.
+           MOVE WS-NOV-ACT TO REG-NOV.
+           WRITE REG-NOV.
+           PERFORM BUSCO-TIPO_CLASE.
+           MOVE WS-TIP-ACT-TARIFA TO WS-NOV-ACT-IMPORTE.
+           MULTIPLY WS-NOV-ACT-HORAS BY WS-NOV-ACT-IMPORTE.
+           PERFORM IMPRIMO-NOV.
+
+       BUSCO-TIPO_CLASE.
+           MOVE 1 TO WS-TIP-INDICE.
+           PERFORM
+           UNTIL TAB-TIP-TIP_CLASE(WS-TIP-INDICE) = WS-NOV-ACT-TIP_CLASE
+                 OR WS-TIP-INDICE = 51
+               ADD 1 TO WS-TIP-INDICE
+           END-PERFORM.
+           IF WS-TIP-INDICE <= 50 THEN
+               MOVE TAB-TIP-DESC(WS-TIP-INDICE) TO WS-TIP-ACT-DESC
+               MOVE TAB-TIP-TARIFA(WS-TIP-INDICE) TO WS-TIP-ACT-TARIFA
+           ELSE
+               MOVE "Sin descripcion" TO WS-TIP-ACT-DESC
+               MOVE 0 TO WS-TIP-ACT-TARIFA
+           END-IF.
+
+       IMPRIMO-NOV.
+           MOVE WS-NOV-ACT-FECHA TO PTR-NOV-FECHA.
+           MOVE WS-NOV-ACT-SUCURSAL TO PTR-NOV-SUCURSAL.
+           MOVE WS-TIP-ACT-DESC TO PTR-NOV-TIP_CLASE.
+           MOVE WS-TIP-ACT-TARIFA TO PTR-NOV-TARIFA.
+           MOVE WS-NOV-ACT-HORAS TO PTR-NOV-HORAS.
+           MOVE WS-NOV-ACT-IMPORTE TO PTR-NOV-IMPORTE.
+           DISPLAY PTR-NOV.
 
        FIN.
            CLOSE NOVTIMES1.

@@ -1,14 +1,14 @@
-0001Gimnasia Localizada 350
-0003Gimnasia Artistica  380
-0005Danza Mambo         270
-0011Musculacion         320
-0101Crossfit            450
-0021Danza Lambada       220
-0014Pilates             280
-0016AquaGym             240
-0023Body Pump           270
-0096Spinning            350
-0054Entrenamiento       380
-0002KickBoxing          290
-0045Stretching          190
-0034Step                230
+0001Gimnasia Localizada 0000200
+0003Gimnasia Artistica  0000200
+0005Danza Mambo         0000200
+0011Musculacion         0000200
+0101Crossfit            0000200
+0021Danza Lambada       0000200
+0014Pilates             0000200
+0016AquaGym             0000200
+0023Body Pump           0000200
+0096Spinning            0000200
+0054Entrenamiento       0000200
+0002KickBoxing          0000200
+0045Stretching          0000200
+0034Step                0000200
