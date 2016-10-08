@@ -114,9 +114,15 @@
                05 TAB-TIP-DESC         PIC X(20).
                05 TAB-TIP-TARIFA       PIC 9(5)V99.
 
+       77  WS-TOT-HOJAS        PIC 9(3).
        77  WS-TOT-GRAL-HORAS   PIC 9(4)V99.
        77  WS-TOT-PROF-HORAS   PIC 9(4)V99.
        77  WS-TOT-FECH-HORAS   PIC 9(4)V99.
+
+       01  WS-FECHA-ACT.
+           03 WS-FECHA-ACT-AA PIC 9(4).
+           03 WS-FECHA-ACT-MM PIC 9(2).
+           03 WS-FECHA-ACT-DD PIC 9(2).
 
        01  WS-PROF-ACT.
            03 WS-PROF-ACT-NUMERO   PIC X(5).
@@ -140,18 +146,54 @@
            03 WS-NOV-ACT-HORAS     PIC 9(2)V99.
            03 WS-NOV-ACT-IMPORTE   PIC 9(7)V99.
 
-       01  PTR-NOV.
-           03 PTR-NOV-FECHA        PIC 99/99/9999.
-           03 FILLER               PIC X(4)        VALUE SPACES.
-           03 PTR-NOV-SUCURSAL     PIC X(3).
-           03 FILLER               PIC X(4)        VALUE SPACES.
-           03 PTR-NOV-TIP_CLASE    PIC X(20).
-           03 FILLER               PIC X(4)        VALUE SPACES.
-           03 PTR-NOV-TARIFA       PIC ZZZZ9,99.
-           03 FILLER               PIC X(4)        VALUE SPACES.
-           03 PTR-NOV-HORAS        PIC Z9,99.
-           03 FILLER               PIC X(4)        VALUE SPACES.
-           03 PTR-NOV-IMPORTE      PIC ZZZZZZ9,99.
+       01  PTR-CAB.
+           03 FILLER       PIC X(6)    VALUE "FECHA ".
+           03 PTR-CAB-DD   PIC 99.
+           03 FILLER       PIC X(1)    VALUE "/".
+           03 PTR-CAB-MM   PIC 99.
+           03 FILLER       PIC X(1)    VALUE "/".
+           03 PTR-CAB-AA   PIC 9999.
+           03 FILLER       PIC X(42)   VALUE SPACES.
+           03 FILLER       PIC X(5)    VALUE "HOJA ".
+           03 PTR-CAB-HOJA PIC 999.
+
+       01  PTR-TIT.
+           03 FILLER   PIC X(20)   VALUE SPACES.
+           03 FILLER   PIC X(26)   VALUE "Listado de horas aplicadas".
+           03 FILLER   PIC X(20)   VALUE SPACES.
+
+       01  PTR-PROF.
+           03 FILLER           PIC X(10) VALUE "Profesor: ".
+           03 PTR-PROF-NUMERO  PIC X(5).
+           03 FILLER           PIC X(4) VALUE SPACES.
+           03 FILLER           PIC X(8) VALUE "Nombre: ".
+           03 PTR-PROF-NOMBRE  PIC X(25).
+
+       01  PTR-NOV-CAB.
+           03 FILLER PIC X(5)  VALUE "Fecha".
+           03 FILLER PIC X(6)  VALUE SPACES.
+           03 FILLER PIC X(8)  VALUE "Sucursal".
+           03 FILLER PIC X(1)  VALUE SPACES.
+           03 FILLER PIC X(13) VALUE "Tipo de clase".
+           03 FILLER PIC X(8)  VALUE SPACES.
+           03 FILLER PIC X(6)  VALUE "Tarifa".
+           03 FILLER PIC X(3)  VALUE SPACES.
+           03 FILLER PIC X(5)  VALUE "Horas".
+           03 FILLER PIC X(1)  VALUE SPACES.
+           03 FILLER PIC X(7)  VALUE "Importe".
+
+       01  PTR-NOV-DET.
+           03 PTR-NOV-DET-FECHA        PIC 99/99/9999.
+           03 FILLER                   PIC X(1)        VALUE SPACES.
+           03 PTR-NOV-DET-SUCURSAL     PIC X(3).
+           03 FILLER                   PIC X(6)        VALUE SPACES.
+           03 PTR-NOV-DET-TIP_CLASE    PIC X(20).
+           03 FILLER                   PIC X(1)        VALUE SPACES.
+           03 PTR-NOV-DET-TARIFA       PIC ZZZZ9,99.
+           03 FILLER                   PIC X(1)        VALUE SPACES.
+           03 PTR-NOV-DET-HORAS        PIC Z9,99.
+           03 FILLER                   PIC X(1)        VALUE SPACES.
+           03 PTR-NOV-DET-IMPORTE      PIC ZZZZZZ9,99.
 
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
@@ -161,6 +203,7 @@
            PERFORM LEO-NOVTIMES2.
            PERFORM LEO-NOVTIMES3.
            PERFORM CARGO-TIPOS_CLASE.
+           MOVE ZERO TO WS-TOT-HOJAS.
            MOVE ZERO TO WS-TOT-GRAL-HORAS.
            PERFORM PROC-GENERAL UNTIL
                            PROF-EOF="SI"
@@ -172,6 +215,11 @@
            STOP RUN.
 
        INICIO.
+           ACCEPT WS-FECHA-ACT FROM DATE YYYYMMDD.
+           MOVE WS-FECHA-ACT-DD TO PTR-CAB-DD.
+           MOVE WS-FECHA-ACT-MM TO PTR-CAB-MM.
+           MOVE WS-FECHA-ACT-AA TO PTR-CAB-AA.
+
            OPEN INPUT NOVTIMES1.
            IF NOV1-ESTADO NOT = ZERO THEN
                DISPLAY "ERROR EN OPEN NovTimes1: " NOV1-ESTADO
@@ -303,6 +351,7 @@
        PROC-PROFESOR.
            PERFORM DET-FECHA-MEN.
            MOVE ZERO TO WS-TOT-FECH-HORAS.
+           PERFORM IMPRIMO-CAB.
            PERFORM PROC-FECHA UNTIL
                            (PROF-EOF="SI"
                            AND NOV1-EOF="SI"
@@ -393,14 +442,24 @@
                MOVE 0 TO WS-TIP-ACT-TARIFA
            END-IF.
 
+       IMPRIMO-CAB.
+           ADD 1 TO WS-TOT-HOJAS.
+           MOVE WS-TOT-HOJAS TO PTR-CAB-HOJA.
+           MOVE WS-PROF-ACT-NUMERO TO PTR-PROF-NUMERO.
+           MOVE WS-PROF-ACT-NOMBRE TO PTR-PROF-NOMBRE.
+           DISPLAY PTR-CAB.
+           DISPLAY PTR-TIT.
+           DISPLAY PTR-PROF.
+           DISPLAY PTR-NOV-CAB.
+
        IMPRIMO-NOV.
-           MOVE WS-NOV-ACT-FECHA TO PTR-NOV-FECHA.
-           MOVE WS-NOV-ACT-SUCURSAL TO PTR-NOV-SUCURSAL.
-           MOVE WS-TIP-ACT-DESC TO PTR-NOV-TIP_CLASE.
-           MOVE WS-TIP-ACT-TARIFA TO PTR-NOV-TARIFA.
-           MOVE WS-NOV-ACT-HORAS TO PTR-NOV-HORAS.
-           MOVE WS-NOV-ACT-IMPORTE TO PTR-NOV-IMPORTE.
-           DISPLAY PTR-NOV.
+           MOVE WS-NOV-ACT-FECHA TO PTR-NOV-DET-FECHA.
+           MOVE WS-NOV-ACT-SUCURSAL TO PTR-NOV-DET-SUCURSAL.
+           MOVE WS-TIP-ACT-DESC TO PTR-NOV-DET-TIP_CLASE.
+           MOVE WS-TIP-ACT-TARIFA TO PTR-NOV-DET-TARIFA.
+           MOVE WS-NOV-ACT-HORAS TO PTR-NOV-DET-HORAS.
+           MOVE WS-NOV-ACT-IMPORTE TO PTR-NOV-DET-IMPORTE.
+           DISPLAY PTR-NOV-DET.
 
        FIN.
            CLOSE NOVTIMES1.
