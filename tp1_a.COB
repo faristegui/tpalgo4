@@ -128,9 +128,12 @@
                05 TAB-TIP-TARIFA       PIC 9(5)V99.
 
        77  WS-TOT-HOJAS        PIC 9(3).
-       77  WS-TOT-GRAL-HORAS   PIC 9(4)V99.
+       77  WS-TOT-GRAL-HORAS   PIC 9(5)V99.
+       77  WS-TOT-GRAL-IMPORTE PIC 9(10)V99.
        77  WS-TOT-PROF-HORAS   PIC 9(4)V99.
-       77  WS-TOT-FECH-HORAS   PIC 9(4)V99.
+       77  WS-TOT-PROF-IMPORTE PIC 9(9)V99.
+       77  WS-TOT-FECH-HORAS   PIC 9(3)V99.
+       77  WS-TOT-FECH-IMPORTE PIC 9(8)V99.
 
        01  WS-FECHA-ACT.
            03 WS-FECHA-ACT-AA PIC 9(4).
@@ -159,16 +162,16 @@
            03 WS-NOV-INV-HORAS     PIC 9(2)V99 VALUE 0.
 
        01  WS-NOV-ACT.
-           03 WS-NOV-ACT-NUMERO    PIC X(5).
-           03 WS-NOV-ACT-FECHA     PIC 9(8).
+           03 WS-NOV-ACT-NUMERO                    PIC X(5).
+           03 WS-NOV-ACT-FECHA                     PIC 9(8).
            03 FILLER REDEFINES WS-NOV-ACT-FECHA.
-               05 WS-NOV-ACT-FECHA-AA            PIC 9(4).
-               05 WS-NOV-ACT-FECHA-MM            PIC 9(2).
-               05 WS-NOV-ACT-FECHA-DD            PIC 9(2).
-           03 WS-NOV-ACT-SUCURSAL  PIC X(3).
-           03 WS-NOV-ACT-TIP_CLASE PIC X(4).
-           03 WS-NOV-ACT-HORAS     PIC 9(2)V99.
-           03 WS-NOV-ACT-IMPORTE   PIC 9(7)V99.
+               05 WS-NOV-ACT-FECHA-AA              PIC 9(4).
+               05 WS-NOV-ACT-FECHA-MM              PIC 9(2).
+               05 WS-NOV-ACT-FECHA-DD              PIC 9(2).
+           03 WS-NOV-ACT-SUCURSAL                  PIC X(3).
+           03 WS-NOV-ACT-TIP_CLASE                 PIC X(4).
+           03 WS-NOV-ACT-HORAS                     PIC 9(2)V99.
+           03 WS-NOV-ACT-IMPORTE                   PIC 9(7)V99.
 
        01  PTR-CAB.
            03 FILLER       PIC X(6)    VALUE "FECHA ".
@@ -203,7 +206,7 @@
            03 FILLER PIC X(6)  VALUE "Tarifa".
            03 FILLER PIC X(3)  VALUE SPACES.
            03 FILLER PIC X(5)  VALUE "Horas".
-           03 FILLER PIC X(1)  VALUE SPACES.
+           03 FILLER PIC X(4)  VALUE SPACES.
            03 FILLER PIC X(7)  VALUE "Importe".
 
        01  PTR-NOV-DET.
@@ -218,10 +221,31 @@
            03 PTR-NOV-DET-TIP_CLASE    PIC X(20).
            03 FILLER                   PIC X(1)        VALUE SPACES.
            03 PTR-NOV-DET-TARIFA       PIC ZZZZ9,99.
-           03 FILLER                   PIC X(1)        VALUE SPACES.
+           03 FILLER                   PIC X(4)        VALUE SPACES.
            03 PTR-NOV-DET-HORAS        PIC Z9,99.
-           03 FILLER                   PIC X(1)        VALUE SPACES.
+           03 FILLER                   PIC X(4)        VALUE SPACES.
            03 PTR-NOV-DET-IMPORTE      PIC ZZZZZZ9,99.
+
+       01  PTR-TOT-FECH.
+           03 FILLER               PIC X(17)  VALUE "Totales por fecha".
+           03 FILLER               PIC X(35)  VALUE SPACES.
+           03 PTR-TOT-FECH-HORAS   PIC ZZ9,99.
+           03 FILLER               PIC X(3)   VALUE SPACES.
+           03 PTR-TOT-FECH-IMPORTE PIC ZZZZZZZ9,99.
+
+       01  PTR-TOT-PROF.
+           03 FILLER            PIC X(20) VALUE "Totales por profesor".
+           03 FILLER               PIC X(31)  VALUE SPACES.
+           03 PTR-TOT-PROF-HORAS   PIC ZZZ9,99.
+           03 FILLER               PIC X(2)   VALUE SPACES.
+           03 PTR-TOT-PROF-IMPORTE PIC ZZZZZZZZ9,99.
+
+       01  PTR-TOT-GRAL.
+           03 FILLER               PIC X(13)      VALUE "Total general".
+           03 FILLER               PIC X(37)      VALUE SPACES.
+           03 PTR-TOT-GRAL-HORAS   PIC ZZZZ9,99.
+           03 FILLER               PIC X(1)       VALUE SPACES.
+           03 PTR-TOT-GRAL-IMPORTE PIC ZZZZZZZZZ9,99.
 
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
@@ -233,11 +257,13 @@
            PERFORM CARGO-TIPOS_CLASE.
            MOVE ZERO TO WS-TOT-HOJAS.
            MOVE ZERO TO WS-TOT-GRAL-HORAS.
+           MOVE ZERO TO WS-TOT-GRAL-IMPORTE.
            PERFORM PROC-GENERAL UNTIL
                            PROF-EOF="SI"
                            AND NOV1-EOF="SI"
                            AND NOV2-EOF="SI"
                            AND NOV3-EOF="SI".
+           PERFORM IMPRIMO-TOT-GRAL.
            PERFORM FIN.
            STOP RUN.
 
@@ -354,6 +380,7 @@
                PERFORM CARGO-PROFESOR
            END-IF.
            MOVE ZERO TO WS-TOT-PROF-HORAS.
+           MOVE ZERO TO WS-TOT-PROF-IMPORTE.
            PERFORM IMPRIMO-CAB.
            PERFORM PROC-PROFESOR UNTIL
                            (PROF-EOF="SI"
@@ -365,6 +392,8 @@
                            AND REG-NOV2-NUMERO NOT = WS-NOV-MEN-NUMERO
                            AND REG-NOV3-NUMERO NOT = WS-NOV-MEN-NUMERO).
            ADD WS-TOT-PROF-HORAS TO WS-TOT-GRAL-HORAS.
+           ADD WS-TOT-PROF-IMPORTE TO WS-TOT-GRAL-IMPORTE.
+           PERFORM IMPRIMO-TOT-PROF.
 
        DET-PROFESOR-MEN.
            MOVE "ZZZZZ" TO WS-NOV-MEN-NUMERO.
@@ -387,6 +416,7 @@
        PROC-PROFESOR.
            PERFORM DET-FECHA-MEN.
            MOVE ZERO TO WS-TOT-FECH-HORAS.
+           MOVE ZERO TO WS-TOT-FECH-IMPORTE.
            PERFORM PROC-FECHA UNTIL
                            (PROF-EOF="SI"
                            AND NOV1-EOF="SI"
@@ -401,6 +431,8 @@
                            AND REG-NOV2-FECHA NOT = WS-NOV-MEN-FECHA
                            AND REG-NOV3-FECHA NOT = WS-NOV-MEN-FECHA).
            ADD WS-TOT-FECH-HORAS TO WS-TOT-PROF-HORAS.
+           ADD WS-TOT-FECH-IMPORTE TO WS-TOT-PROF-IMPORTE.
+           PERFORM IMPRIMO-TOT-FECH.
 
        DET-FECHA-MEN.
            MOVE 99999999 TO WS-NOV-MEN-FECHA.
@@ -474,12 +506,13 @@
            PERFORM LEO-NOVTIMES3.
 
        PROC-NOVTIMES.
-           ADD WS-NOV-ACT-HORAS TO WS-TOT-FECH-HORAS.
            MOVE WS-NOV-ACT TO REG-NOV.
            WRITE REG-NOV.
            PERFORM BUSCO-TIPO_CLASE.
            MOVE WS-TIP-ACT-TARIFA TO WS-NOV-ACT-IMPORTE.
            MULTIPLY WS-NOV-ACT-HORAS BY WS-NOV-ACT-IMPORTE.
+           ADD WS-NOV-ACT-HORAS TO WS-TOT-FECH-HORAS.
+           ADD WS-NOV-ACT-IMPORTE TO WS-TOT-FECH-IMPORTE.
            PERFORM IMPRIMO-NOV.
 
        BUSCO-TIPO_CLASE.
@@ -517,6 +550,21 @@
            MOVE WS-NOV-ACT-HORAS TO PTR-NOV-DET-HORAS.
            MOVE WS-NOV-ACT-IMPORTE TO PTR-NOV-DET-IMPORTE.
            DISPLAY PTR-NOV-DET.
+
+       IMPRIMO-TOT-FECH.
+           MOVE WS-TOT-FECH-HORAS TO PTR-TOT-FECH-HORAS.
+           MOVE WS-TOT-FECH-IMPORTE TO PTR-TOT-FECH-IMPORTE.
+           DISPLAY PTR-TOT-FECH.
+
+       IMPRIMO-TOT-PROF.
+           MOVE WS-TOT-PROF-HORAS TO PTR-TOT-PROF-HORAS.
+           MOVE WS-TOT-PROF-IMPORTE TO PTR-TOT-PROF-IMPORTE.
+           DISPLAY PTR-TOT-PROF.
+
+       IMPRIMO-TOT-GRAL.
+           MOVE WS-TOT-GRAL-HORAS TO PTR-TOT-GRAL-HORAS.
+           MOVE WS-TOT-GRAL-IMPORTE TO PTR-TOT-GRAL-IMPORTE.
+           DISPLAY PTR-TOT-GRAL.
 
        FIN.
            CLOSE NOVTIMES1.
