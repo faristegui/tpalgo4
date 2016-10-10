@@ -72,8 +72,8 @@
            03 WS-FECHA-ACT-MM PIC 9(2).
            03 WS-FECHA-ACT-DD PIC 9(2).
 
-       77  WS-ANIO-DESDE     PIC 9(4).
-       77  WS-TOT-GRAL-HORAS PIC 9(4)V99.
+       77  WS-ANIO-DESDE       PIC 9(4).
+       77  WS-TOT-GRAL-HORAS   PIC 9(4)V99.
 
        01  PTR-CAB.
            03 FILLER       PIC X(6)    VALUE "FECHA ".
@@ -258,19 +258,6 @@
            IF (REG-NOV-FECHA-AA >= WS-ANIO-DESDE) THEN
                PERFORM BUSCO-SUCURSAL
                PERFORM BUSCO-ANIO
-
-               IF (WS-SUC-INDICE = 1) THEN
-                   DISPLAY "****CLAVE****"
-                   DISPLAY WS-SUC-INDICE
-                   DISPLAY WS-SUC-ANIO-INDICE
-                   DISPLAY REG-NOV-FECHA-MM
-                   DISPLAY "-------------"
-                   DISPLAY REG-NOV-HORAS
-                   DISPLAY TAB-SUC-MES-TOT-HORAS(WS-SUC-INDICE,
-                                                 WS-SUC-ANIO-INDICE,
-                                                 REG-NOV-FECHA-MM)
-               END-IF
-
                ADD REG-NOV-HORAS
                    TO TAB-SUC-MES-TOT-HORAS(WS-SUC-INDICE,
                                             WS-SUC-ANIO-INDICE,
@@ -280,13 +267,6 @@
                                              WS-SUC-ANIO-INDICE)
                ADD REG-NOV-HORAS TO TAB-MES-TOT-HORAS(REG-NOV-FECHA-MM)
                ADD REG-NOV-HORAS TO WS-TOT-GRAL-HORAS
-
-               IF (WS-SUC-INDICE = 1) THEN
-                   DISPLAY TAB-SUC-MES-TOT-HORAS(WS-SUC-INDICE,
-                                                 WS-SUC-ANIO-INDICE,
-                                                 REG-NOV-FECHA-MM)
-                   DISPLAY "*************"
-               END-IF
            END-IF.
            PERFORM LEO-NOVTIMES.
 
@@ -317,6 +297,9 @@
            MOVE TAB-SUC-RAZON(WS-SUC-INDICE) TO PTR-SUC-DET-RAZON.
            MOVE 5 TO WS-SUC-ANIO-INDICE.
            PERFORM UNTIL WS-SUC-ANIO-INDICE = 0
+               IF WS-SUC-ANIO-INDICE NOT = 5 THEN
+                   MOVE SPACES TO PTR-SUC-DET-RAZON
+               END-IF
                MOVE TAB-SUC-ANIO-ANIO(WS-SUC-INDICE,
                                       WS-SUC-ANIO-INDICE)
                     TO PTR-SUC-DET-AA
