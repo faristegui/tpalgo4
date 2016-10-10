@@ -180,7 +180,7 @@
            03 PTR-CAB-MM   PIC 99.
            03 FILLER       PIC X(1)    VALUE "/".
            03 PTR-CAB-AA   PIC 9999.
-           03 FILLER       PIC X(42)   VALUE SPACES.
+           03 FILLER       PIC X(48)   VALUE SPACES.
            03 FILLER       PIC X(5)    VALUE "HOJA ".
            03 PTR-CAB-HOJA PIC 999.
 
