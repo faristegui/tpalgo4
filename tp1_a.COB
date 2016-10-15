@@ -103,22 +103,21 @@
 
        WORKING-STORAGE SECTION.
        77  PROF-ESTADO PIC XX.
-       77  PROF-EOF    PIC XX  VALUE "NO".
+           88 PROF-EOF VALUE 10.
 
-       77  TIP-ESTADO  PIC XX.
-       77  TIP-EOF     PIC XX  VALUE "NO".
+       77  TIP-ESTADO PIC XX.
+           88 TIP-EOF VALUE 10.
 
        77  NOV1-ESTADO PIC XX.
-       77  NOV1-EOF    PIC XX  VALUE "NO".
+           88 NOV1-EOF VALUE 10.
 
        77  NOV2-ESTADO PIC XX.
-       77  NOV2-EOF    PIC XX  VALUE "NO".
+           88 NOV2-EOF VALUE 10.
 
        77  NOV3-ESTADO PIC XX.
-       77  NOV3-EOF    PIC XX  VALUE "NO".
+           88 NOV3-EOF VALUE 10.
 
        77  NOV-ESTADO  PIC XX.
-       77  NOV-EOF     PIC XX  VALUE "NO".
 
        77  WS-TIP-INDICE PIC 9(4).
        01  TAB-TIP_CLASE.
@@ -262,10 +261,10 @@
            MOVE ZERO TO WS-TOT-GRAL-HORAS.
            MOVE ZERO TO WS-TOT-GRAL-IMPORTE.
            PERFORM PROC-GENERAL UNTIL
-                                (PROF-EOF = "SI"
-                                 AND NOV1-EOF = "SI"
-                                 AND NOV2-EOF = "SI"
-                                 AND NOV3-EOF = "SI").
+                                (PROF-EOF
+                                 AND NOV1-EOF
+                                 AND NOV2-EOF
+                                 AND NOV3-EOF).
            PERFORM IMPRIMO-TOT-GRAL.
            PERFORM FIN.
            STOP RUN.
@@ -319,7 +318,7 @@
            END-IF.
 
        LEO-PROFESORES.
-           READ PROFESORES AT END MOVE "SI" TO PROF-EOF.
+           READ PROFESORES RECORD INTO REG-PROF.
            IF (PROF-ESTADO NOT = ZERO AND 10) THEN
                DISPLAY "ERROR EN READ Profesores: " PROF-ESTADO
                PERFORM FIN
@@ -327,7 +326,7 @@
            END-IF.
 
        LEO-TIPOS_CLASE.
-           READ TIPOS_CLASE AT END MOVE "SI" TO TIP-EOF.
+           READ TIPOS_CLASE RECORD INTO REG-TIP.
            IF (TIP-ESTADO NOT = ZERO AND 10) THEN
                DISPLAY "ERROR EN READ TiposClase: " TIP-ESTADO
                PERFORM FIN
@@ -335,35 +334,35 @@
            END-IF.
 
        LEO-NOVTIMES1.
-           READ NOVTIMES1 AT END MOVE "SI" TO NOV1-EOF.
+           READ NOVTIMES1 RECORD INTO REG-NOV1.
            IF (NOV1-ESTADO NOT = ZERO AND 10) THEN
                DISPLAY "ERROR EN READ NovTimes1: " NOV1-ESTADO
                PERFORM FIN
                STOP RUN
            END-IF.
-           IF (NOV1-EOF = "SI") THEN
+           IF (NOV1-EOF) THEN
                MOVE WS-NOV-INV TO REG-NOV1
            END-IF.
 
        LEO-NOVTIMES2.
-           READ NOVTIMES2 AT END MOVE "SI" TO NOV2-EOF.
+           READ NOVTIMES2 RECORD INTO REG-NOV2.
            IF (NOV2-ESTADO NOT = ZERO AND 10) THEN
                DISPLAY "ERROR EN READ NovTimes2: " NOV2-ESTADO
                PERFORM FIN
                STOP RUN
            END-IF.
-           IF (NOV2-EOF = "SI") THEN
+           IF (NOV2-EOF) THEN
                MOVE WS-NOV-INV TO REG-NOV2
            END-IF.
 
        LEO-NOVTIMES3.
-           READ NOVTIMES3 AT END MOVE "SI" TO NOV3-EOF.
+           READ NOVTIMES3 RECORD INTO REG-NOV3.
            IF (NOV3-ESTADO NOT = ZERO AND 10) THEN
                DISPLAY "ERROR EN READ NovTimes3: " NOV3-ESTADO
                PERFORM FIN
                STOP RUN
            END-IF.
-           IF (NOV3-EOF = "SI") THEN
+           IF (NOV3-EOF) THEN
                MOVE WS-NOV-INV TO REG-NOV3
            END-IF.
 
@@ -371,7 +370,7 @@
            PERFORM LEO-TIPOS_CLASE.
            MOVE 1 TO WS-TIP-INDICE.
            PERFORM
-           UNTIL (TIP-EOF = "SI")
+           UNTIL (TIP-EOF)
                MOVE REG-TIP TO TAB-TIP(WS-TIP-INDICE)
                ADD 1 TO WS-TIP-INDICE
                PERFORM LEO-TIPOS_CLASE
@@ -386,10 +385,10 @@
            MOVE ZERO TO WS-TOT-PROF-IMPORTE.
            PERFORM IMPRIMO-CAB.
            PERFORM PROC-PROFESOR UNTIL
-                          (PROF-EOF = "SI"
-                           AND NOV1-EOF = "SI"
-                           AND NOV2-EOF = "SI"
-                           AND NOV3-EOF = "SI")
+                          (PROF-EOF
+                           AND NOV1-EOF
+                           AND NOV2-EOF
+                           AND NOV3-EOF)
                           OR
                           (REG-NOV1-NUMERO NOT = WS-NOV-MEN-NUMERO
                            AND REG-NOV2-NUMERO NOT = WS-NOV-MEN-NUMERO
@@ -421,10 +420,10 @@
            MOVE ZERO TO WS-TOT-FECH-HORAS.
            MOVE ZERO TO WS-TOT-FECH-IMPORTE.
            PERFORM PROC-FECHA UNTIL
-                           (PROF-EOF = "SI"
-                            AND NOV1-EOF = "SI"
-                            AND NOV2-EOF = "SI"
-                            AND NOV3-EOF = "SI")
+                           (PROF-EOF
+                            AND NOV1-EOF
+                            AND NOV2-EOF
+                            AND NOV3-EOF)
                            OR
                            (REG-NOV1-NUMERO NOT = WS-NOV-MEN-NUMERO
                             AND REG-NOV2-NUMERO NOT = WS-NOV-MEN-NUMERO
@@ -456,17 +455,17 @@
        PROC-FECHA.
            PERFORM DET-SUCURSAL-MEN.
            PERFORM PROC-NOVTIMES1 UNTIL
-                       (NOV1-EOF = "SI"
+                       (NOV1-EOF
                         OR REG-NOV1-NUMERO NOT = WS-NOV-MEN-NUMERO
                         OR REG-NOV1-FECHA NOT = WS-NOV-MEN-FECHA
                         OR REG-NOV1-SUCURSAL NOT = WS-NOV-MEN-SUCURSAL).
            PERFORM PROC-NOVTIMES2 UNTIL
-                       (NOV2-EOF = "SI"
+                       (NOV2-EOF
                         OR REG-NOV2-NUMERO NOT = WS-NOV-MEN-NUMERO
                         OR REG-NOV2-FECHA NOT = WS-NOV-MEN-FECHA
                         OR REG-NOV2-SUCURSAL NOT = WS-NOV-MEN-SUCURSAL).
            PERFORM PROC-NOVTIMES3 UNTIL
-                       (NOV3-EOF = "SI"
+                       (NOV3-EOF
                         OR REG-NOV3-NUMERO NOT = WS-NOV-MEN-NUMERO
                         OR REG-NOV3-FECHA NOT = WS-NOV-MEN-FECHA
                         OR REG-NOV3-SUCURSAL NOT = WS-NOV-MEN-SUCURSAL).
