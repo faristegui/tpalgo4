@@ -283,7 +283,7 @@
            END-IF.
 
            OPEN INPUT TIPOS_CLASE.
-           IF TIP-ESTADO NOT = ZERO THEN
+           IF (TIP-ESTADO NOT = ZERO) THEN
                DISPLAY "ERROR EN OPEN TiposClase: " TIP-ESTADO
                PERFORM FIN
                STOP RUN
