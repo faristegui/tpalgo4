@@ -32,21 +32,23 @@
        FD  NOVTIMES LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/NovTimes.txt".
        01  REG-NOV.
-           03 REG-NOV-NUMERO    PIC X(5).
-           03 REG-NOV-FECHA     PIC 9(8).
+           03 REG-NOV-NUMERO      PIC X(5).
+           03 REG-NOV-FECHA       PIC 9(8).
            03 FILLER REDEFINES REG-NOV-FECHA.
-               05 REG-NOV-FECHA-AA PIC 9(4).
-               05 REG-NOV-FECHA-MM PIC 9(2).
-               05 REG-NOV-FECHA-DD PIC 9(2).
-           03 REG-NOV-SUCURSAL  PIC X(3).
-           03 REG-NOV-TIP_CLASE PIC X(4).
-           03 REG-NOV-HORAS     PIC 9(2)V99.
+              05 REG-NOV-FECHA-AA PIC 9(4).
+              05 REG-NOV-FECHA-MM PIC 9(2).
+              05 REG-NOV-FECHA-DD PIC 9(2).
+           03 REG-NOV-SUCURSAL    PIC X(3).
+           03 REG-NOV-TIP_CLASE   PIC X(4).
+           03 REG-NOV-HORAS       PIC 9(2)V99.
 
        WORKING-STORAGE SECTION.
        77  SUC-ESTADO PIC XX.
+           88 SUC-OK VALUE 00.
            88 SUC-EOF VALUE 10.
 
        77  NOV-ESTADO PIC XX.
+           88 NOV-OK  VALUE 00.
            88 NOV-EOF VALUE 10.
 
        01  WS-SUC-INDICE      PIC 9(2).
@@ -54,13 +56,13 @@
        01  WS-SUC-MES-INDICE  PIC 9(2).
        01  TAB-SUCURSALES.
            03 TAB-SUC OCCURS 3 TIMES.
-              05 TAB-SUC-SUCURSAL               PIC X(3).
-              05 TAB-SUC-RAZON                  PIC X(25).
+              05 TAB-SUC-SUCURSAL            PIC X(3).
+              05 TAB-SUC-RAZON               PIC X(25).
               05 TAB-SUC-ANIO OCCURS 5 TIMES.
-                    07 TAB-SUC-ANIO-ANIO        PIC 9(4).
-                    07 TAB-SUC-ANIO-TOT-HORAS   PIC 9(3)V99 VALUE ZERO.
-                    07 TAB-SUC-MES OCCURS 12 TIMES.
-                       09 TAB-SUC-MES-TOT-HORAS PIC 9(3)V99 VALUE ZERO.
+                 07 TAB-SUC-ANIO-ANIO        PIC 9(4).
+                 07 TAB-SUC-ANIO-TOT-HORAS   PIC 9(3)V99 VALUE ZERO.
+                 07 TAB-SUC-MES OCCURS 12 TIMES.
+                    09 TAB-SUC-MES-TOT-HORAS PIC 9(3)V99 VALUE ZERO.
 
        01  WS-MES-INDICE PIC 9(2).
        01  TAB-MESES.
@@ -202,14 +204,14 @@
            MOVE WS-FECHA-ACT-AA TO PTR-CAB-AA.
 
            OPEN INPUT SUCURSALES.
-           IF SUC-ESTADO NOT = ZERO THEN
+           IF (NOT SUC-OK) THEN
                DISPLAY "ERROR EN OPEN Sucursales: " SUC-ESTADO
                PERFORM FIN
                STOP RUN
            END-IF.
 
            OPEN INPUT NOVTIMES.
-           IF NOV-ESTADO NOT = ZERO THEN
+           IF (NOT NOV-OK) THEN
                DISPLAY "ERROR EN OPEN NovTimes: " NOV-ESTADO
                PERFORM FIN
                STOP RUN
@@ -217,7 +219,7 @@
 
        LEO-SUCURSALES.
            READ SUCURSALES RECORD INTO REG-SUC.
-           IF SUC-ESTADO NOT = ZERO AND 10 THEN
+           IF ((NOT SUC-OK) AND (NOT SUC-EOF)) THEN
                DISPLAY "ERROR EN READ Sucusales: " SUC-ESTADO
                PERFORM FIN
                STOP RUN
@@ -225,7 +227,7 @@
 
        LEO-NOVTIMES.
            READ NOVTIMES RECORD INTO REG-NOV.
-           IF NOV-ESTADO NOT = ZERO AND 10 THEN
+           IF ((NOT NOV-OK) AND (NOT NOV-EOF)) THEN
                DISPLAY "ERROR EN READ NovTimes: " NOV-ESTADO
                PERFORM FIN
                STOP RUN
@@ -249,8 +251,8 @@
                     TO TAB-SUC-ANIO-ANIO(WS-SUC-INDICE,
                                          WS-SUC-ANIO-INDICE)
                SUBTRACT WS-SUC-ANIO-INDICE
-                   FROM TAB-SUC-ANIO-ANIO(WS-SUC-INDICE,
-                                        WS-SUC-ANIO-INDICE)
+                        FROM TAB-SUC-ANIO-ANIO(WS-SUC-INDICE,
+                                               WS-SUC-ANIO-INDICE)
                ADD 1 TO WS-SUC-ANIO-INDICE
            END-PERFORM.
 

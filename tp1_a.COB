@@ -55,42 +55,41 @@
        FD  NOVTIMES1 LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/NovTimes1.txt".
        01  REG-NOV1.
-           03 REG-NOV1-NUMERO       PIC X(5).
-           03 REG-NOV1-FECHA        PIC 9(8).
+           03 REG-NOV1-NUMERO      PIC X(5).
+           03 REG-NOV1-FECHA       PIC 9(8).
            03 FILLER REDEFINES REG-NOV1-FECHA.
-               05 REG-NOV1-FECHA-AA PIC 9(4).
-               05 REG-NOV1-FECHA-MM PIC 9(2).
-               05 REG-NOV1-FECHA-DD PIC 9(2).
-           03 REG-NOV1-SUCURSAL     PIC X(3).
-           03 REG-NOV1-TIP_CLASE    PIC X(4).
-           03 REG-NOV1-HORAS        PIC 9(2)V99.
-
+              05 REG-NOV1-FECHA-AA PIC 9(4).
+              05 REG-NOV1-FECHA-MM PIC 9(2).
+              05 REG-NOV1-FECHA-DD PIC 9(2).
+           03 REG-NOV1-SUCURSAL    PIC X(3).
+           03 REG-NOV1-TIP_CLASE   PIC X(4).
+           03 REG-NOV1-HORAS       PIC 9(2)V99.
 
        FD  NOVTIMES2 LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/NovTimes2.txt".
        01  REG-NOV2.
-           03 REG-NOV2-NUMERO       PIC X(5).
-           03 REG-NOV2-FECHA        PIC 9(8).
+           03 REG-NOV2-NUMERO      PIC X(5).
+           03 REG-NOV2-FECHA       PIC 9(8).
            03 FILLER REDEFINES REG-NOV2-FECHA.
-               05 REG-NOV2-FECHA-AA PIC 9(4).
-               05 REG-NOV2-FECHA-MM PIC 9(2).
-               05 REG-NOV2-FECHA-DD PIC 9(2).
-           03 REG-NOV2-SUCURSAL     PIC X(3).
-           03 REG-NOV2-TIP_CLASE    PIC X(4).
-           03 REG-NOV2-HORAS        PIC 9(2)V99.
+              05 REG-NOV2-FECHA-AA PIC 9(4).
+              05 REG-NOV2-FECHA-MM PIC 9(2).
+              05 REG-NOV2-FECHA-DD PIC 9(2).
+           03 REG-NOV2-SUCURSAL    PIC X(3).
+           03 REG-NOV2-TIP_CLASE   PIC X(4).
+           03 REG-NOV2-HORAS       PIC 9(2)V99.
 
        FD  NOVTIMES3 LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/NovTimes3.txt".
        01  REG-NOV3.
-           03 REG-NOV3-NUMERO       PIC X(5).
-           03 REG-NOV3-FECHA        PIC 9(8).
+           03 REG-NOV3-NUMERO      PIC X(5).
+           03 REG-NOV3-FECHA       PIC 9(8).
            03 FILLER REDEFINES REG-NOV3-FECHA.
-               05 REG-NOV3-FECHA-AA PIC 9(4).
-               05 REG-NOV3-FECHA-MM PIC 9(2).
-               05 REG-NOV3-FECHA-DD PIC 9(2).
-           03 REG-NOV3-SUCURSAL     PIC X(3).
-           03 REG-NOV3-TIP_CLASE    PIC X(4).
-           03 REG-NOV3-HORAS        PIC 9(2)V99.
+              05 REG-NOV3-FECHA-AA PIC 9(4).
+              05 REG-NOV3-FECHA-MM PIC 9(2).
+              05 REG-NOV3-FECHA-DD PIC 9(2).
+           03 REG-NOV3-SUCURSAL    PIC X(3).
+           03 REG-NOV3-TIP_CLASE   PIC X(4).
+           03 REG-NOV3-HORAS       PIC 9(2)V99.
 
        FD  NOVTIMES LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/NovTimes.txt".
@@ -103,28 +102,34 @@
 
        WORKING-STORAGE SECTION.
        77  PROF-ESTADO PIC XX.
+           88 PROF-OK  VALUE 00.
            88 PROF-EOF VALUE 10.
 
        77  TIP-ESTADO PIC XX.
+           88 TIP-OK  VALUE 00.
            88 TIP-EOF VALUE 10.
 
        77  NOV1-ESTADO PIC XX.
+           88 NOV1-OK  VALUE 00.
            88 NOV1-EOF VALUE 10.
 
        77  NOV2-ESTADO PIC XX.
+           88 NOV2-OK  VALUE 00.
            88 NOV2-EOF VALUE 10.
 
        77  NOV3-ESTADO PIC XX.
+           88 NOV3-OK  VALUE  00.
            88 NOV3-EOF VALUE 10.
 
-       77  NOV-ESTADO  PIC XX.
+       77  NOV-ESTADO PIC XX.
+           88 NOV-OK VALUE 00.
 
        77  WS-TIP-INDICE PIC 9(4).
        01  TAB-TIP_CLASE.
-           03  TAB-TIP OCCURS 50 TIMES.
-               05 TAB-TIP-TIP_CLASE PIC X(4).
-               05 TAB-TIP-DESC      PIC X(20).
-               05 TAB-TIP-TARIFA    PIC 9(5)V99.
+           03 TAB-TIP OCCURS 50 TIMES.
+              05 TAB-TIP-TIP_CLASE PIC X(4).
+              05 TAB-TIP-DESC      PIC X(20).
+              05 TAB-TIP-TARIFA    PIC 9(5)V99.
 
        77  WS-TOT-HOJAS        PIC 9(3).
        77  WS-TOT-GRAL-HORAS   PIC 9(5)V99.
@@ -161,16 +166,16 @@
            03 WS-NOV-INV-HORAS     PIC 9(2)V99 VALUE 0.
 
        01  WS-NOV-ACT.
-           03 WS-NOV-ACT-NUMERO       PIC X(5).
-           03 WS-NOV-ACT-FECHA        PIC 9(8).
+           03 WS-NOV-ACT-NUMERO      PIC X(5).
+           03 WS-NOV-ACT-FECHA       PIC 9(8).
            03 FILLER REDEFINES WS-NOV-ACT-FECHA.
-               05 WS-NOV-ACT-FECHA-AA PIC 9(4).
-               05 WS-NOV-ACT-FECHA-MM PIC 9(2).
-               05 WS-NOV-ACT-FECHA-DD PIC 9(2).
-           03 WS-NOV-ACT-SUCURSAL     PIC X(3).
-           03 WS-NOV-ACT-TIP_CLASE    PIC X(4).
-           03 WS-NOV-ACT-HORAS        PIC 9(2)V99.
-           03 WS-NOV-ACT-IMPORTE      PIC 9(7)V99.
+              05 WS-NOV-ACT-FECHA-AA PIC 9(4).
+              05 WS-NOV-ACT-FECHA-MM PIC 9(2).
+              05 WS-NOV-ACT-FECHA-DD PIC 9(2).
+           03 WS-NOV-ACT-SUCURSAL    PIC X(3).
+           03 WS-NOV-ACT-TIP_CLASE   PIC X(4).
+           03 WS-NOV-ACT-HORAS       PIC 9(2)V99.
+           03 WS-NOV-ACT-IMPORTE     PIC 9(7)V99.
 
        01  PTR-CAB.
            03 FILLER       PIC X(6)  VALUE "FECHA ".
@@ -276,42 +281,42 @@
            MOVE WS-FECHA-ACT-AA TO PTR-CAB-AA.
 
            OPEN INPUT PROFESORES.
-           IF (PROF-ESTADO NOT = ZERO) THEN
+           IF (NOT PROF-OK) THEN
                DISPLAY "ERROR EN OPEN Profesores: " PROF-ESTADO
                PERFORM FIN
                STOP RUN
            END-IF.
 
            OPEN INPUT TIPOS_CLASE.
-           IF (TIP-ESTADO NOT = ZERO) THEN
+           IF (NOT TIP-OK) THEN
                DISPLAY "ERROR EN OPEN TiposClase: " TIP-ESTADO
                PERFORM FIN
                STOP RUN
            END-IF.
 
            OPEN INPUT NOVTIMES1.
-           IF (NOV1-ESTADO NOT = ZERO) THEN
+           IF (NOT NOV1-OK) THEN
                DISPLAY "ERROR EN OPEN NovTimes1: " NOV1-ESTADO
                PERFORM FIN
                STOP RUN
            END-IF.
 
            OPEN INPUT NOVTIMES2.
-           IF (NOV2-ESTADO NOT = ZERO) THEN
+           IF (NOT NOV2-OK) THEN
                DISPLAY "ERROR EN OPEN NovTimes2: " NOV2-ESTADO
                PERFORM FIN
                STOP RUN
            END-IF.
 
            OPEN INPUT NOVTIMES3.
-           IF (NOV3-ESTADO NOT = ZERO) THEN
+           IF (NOT NOV3-OK) THEN
                DISPLAY "ERROR EN OPEN NovTimes3: " NOV3-ESTADO
                PERFORM FIN
                STOP RUN
            END-IF.
 
            OPEN OUTPUT NOVTIMES.
-           IF (NOV-ESTADO NOT = ZERO) THEN
+           IF (NOT NOV-OK) THEN
                DISPLAY "ERROR EN OPEN NovTimes: " NOV-ESTADO
                PERFORM FIN
                STOP RUN
@@ -319,7 +324,7 @@
 
        LEO-PROFESORES.
            READ PROFESORES RECORD INTO REG-PROF.
-           IF (PROF-ESTADO NOT = ZERO AND 10) THEN
+           IF ((NOT PROF-OK) AND (NOT PROF-EOF)) THEN
                DISPLAY "ERROR EN READ Profesores: " PROF-ESTADO
                PERFORM FIN
                STOP RUN
@@ -327,7 +332,7 @@
 
        LEO-TIPOS_CLASE.
            READ TIPOS_CLASE RECORD INTO REG-TIP.
-           IF (TIP-ESTADO NOT = ZERO AND 10) THEN
+           IF ((NOT TIP-OK) AND (NOT TIP-EOF)) THEN
                DISPLAY "ERROR EN READ TiposClase: " TIP-ESTADO
                PERFORM FIN
                STOP RUN
@@ -335,7 +340,7 @@
 
        LEO-NOVTIMES1.
            READ NOVTIMES1 RECORD INTO REG-NOV1.
-           IF (NOV1-ESTADO NOT = ZERO AND 10) THEN
+           IF ((NOT NOV1-OK) AND (NOT NOV1-EOF)) THEN
                DISPLAY "ERROR EN READ NovTimes1: " NOV1-ESTADO
                PERFORM FIN
                STOP RUN
@@ -346,7 +351,7 @@
 
        LEO-NOVTIMES2.
            READ NOVTIMES2 RECORD INTO REG-NOV2.
-           IF (NOV2-ESTADO NOT = ZERO AND 10) THEN
+           IF ((NOT NOV2-OK) AND (NOT NOV2-EOF)) THEN
                DISPLAY "ERROR EN READ NovTimes2: " NOV2-ESTADO
                PERFORM FIN
                STOP RUN
@@ -357,7 +362,7 @@
 
        LEO-NOVTIMES3.
            READ NOVTIMES3 RECORD INTO REG-NOV3.
-           IF (NOV3-ESTADO NOT = ZERO AND 10) THEN
+           IF ((NOT NOV3-OK) AND (NOT NOV3-EOF)) THEN
                DISPLAY "ERROR EN READ NovTimes3: " NOV3-ESTADO
                PERFORM FIN
                STOP RUN
@@ -525,7 +530,7 @@
                ADD 1 TO WS-TIP-INDICE
            END-PERFORM.
            MOVE TAB-TIP-DESC(WS-TIP-INDICE) TO WS-TIP-ACT-DESC.
-00         MOVE TAB-TIP-TARIFA(WS-TIP-INDICE) TO WS-TIP-ACT-TARIFA.
+           MOVE TAB-TIP-TARIFA(WS-TIP-INDICE) TO WS-TIP-ACT-TARIFA.
 
        IMPRIMO-CAB.
            ADD 1 TO WS-TOT-HOJAS.
@@ -564,11 +569,11 @@
            DISPLAY PTR-TOT-GRAL.
 
        FIN.
+           CLOSE PROFESORES.
+           CLOSE TIPOS_CLASE.
            CLOSE NOVTIMES1.
            CLOSE NOVTIMES2.
            CLOSE NOVTIMES3.
-           CLOSE PROFESORES.
-           CLOSE TIPOS_CLASE.
            CLOSE NOVTIMES.
 
        END PROGRAM TP1-A.
