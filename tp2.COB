@@ -1,0 +1,130 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TP2.
+
+       ENVIRONMENT DIVISION.
+
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ORDEN ASSIGN TO DISK.
+
+           SELECT NOVTIMES ASSIGN TO DISK
+           ORGANIZATION IS INDEXED
+           RECORD KEY IS REG-TIM-CLAVE
+           ALTERNATE RECORD KEY IS REG-TIM-CUIT WITH DUPLICATES
+           FILE STATUS IS TIM-ESTADO.
+
+           SELECT PROFESORES ASSIGN TO DISK
+           ORGANIZATION IS INDEXED
+           RECORD KEY IS REG-PROF-NUMERO
+           FILE STATUS IS PROF-ESTADO.
+
+           SELECT TARIFAS ASSIGN TO DISK
+           ORGANIZATION IS LINE SEQUENTIAL
+           FILE STATUS IS TAR-ESTADO.
+
+           SELECT PARAMETROS ASSIGN TO DISK
+           ORGANIZATION IS LINE SEQUENTIAL
+           FILE STATUS IS PAR-ESTADO.
+
+       DATA DIVISION.
+
+       FILE SECTION.
+       SD  ORDEN DATA RECORD IS REG-ORD.
+       01  REG-ORD.
+           03 REG-ORD-NUMERO    PIC X(05).
+           03 REG-ORD-FECHA     PIC 9(08).
+           03 REG-ORD-CUIT      PIC 9(11).
+           03 REG-ORD-TIP_CLASE PIC X(04).
+           03 REG-ORD-HORAS     PIC 9(2)V99.
+           03 REG-ORD-RAZON     PIC X(25).
+
+       FD  NOVTIMES LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "files/NovTimes.dat".
+       01  REG-TIM.
+           03 REG-TIM-CLAVE.
+              05 REG-TIM-NUMERO PIC X(05).
+              05 REG-TIM-FECHA  PIC 9(08).
+              05 REG-TIM-CUIT   PIC 9(11).
+              05 REG-TIM-SEC    PIC 9(4).
+           03 REG-TIM-TIP_CLASE PIC X(04).
+           03 REG-TIM-HORAS     PIC 9(2)V99.
+
+       FD  PROFESORES LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "files/Profesores.dat".
+       01  REG-PROF.
+           03 REG-PROF-NUMERO PIC X(5).
+           03 REG-PROF-DNI    PIC 9(8).
+           03 REG-PROF-NOMBRE PIC X(25).
+           03 REG-PROF-DIRE   PIC X(20).
+           03 REG-PROF-TEL    PIC X(20).
+
+       FD  TARIFAS LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "files/Tarifas.dat".
+       01  REG-TAR.
+           03 REG-TAR-TIP_CLASE PIC X(04).
+           03 REG-TAR-VIG-DES   PIC 9(8).
+           03 REG-TAR-TARIFA    PIC 9(5)V99.
+
+       FD  PARAMETROS LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "files/Parametros.dat".
+       01  REG-PAR.
+           03 REG-PAR-CUIT-DESDE PIC 9(11).
+           03 REG-PAR-CUIT-HASTA PIC 9(11).
+
+       WORKING-STORAGE SECTION.
+       77  TIM-ESTADO PIC XX.
+           88 TIM-OK  VALUE 00.
+           88 TIM-EOF VALUE 10.
+
+       77  PROF-ESTADO PIC XX.
+           88 PROF-OK  VALUE 00.
+           88 PROF-EOF VALUE 10.
+
+       77  TAR-ESTADO PIC XX.
+           88 TAR-OK  VALUE 00.
+           88 TAR-EOF VALUE 10.
+
+       77  PAR-ESTADO PIC XX.
+           88 PAR-OK  VALUE 00.
+           88 PAR-EOF VALUE 10.
+
+       PROCEDURE DIVISION.
+       MAIN-PROCEDURE.
+           SORT ORDEN ON ASCENDING KEY REG-ORD-RAZON
+                      ON ASCENDING KEY REG-ORD-CUIT
+                      ON ASCENDING KEY REG-ORD-FECHA
+                      ON ASCENDING KEY REG-ORD-NUMERO
+                INPUT PROCEDURE IS ENTRADA
+                OUTPUT PROCEDURE IS SALIDA.
+           STOP RUN.
+
+       ENTRADA SECTION.
+       INICIO-ENTRADA.
+           OPEN INPUT NOVTIMES.
+           IF (NOT TIM-OK) THEN
+               DISPLAY "ERROR EN OPEN NovTimes: " TIM-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
+
+           OPEN INPUT PARAMETROS.
+           IF (NOT PAR-OK) THEN
+               DISPLAY "ERROR EN OPEN Parametros: " PAR-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
+
+       FIN-ENTRADA.
+           CLOSE NOVTIMES.
+           CLOSE PARAMETROS.
+
+       SALIDA SECTION.
+       INICIO-SALIDA.
+
+       FIN-SALIDA.
+
+       END PROGRAM TP2.
