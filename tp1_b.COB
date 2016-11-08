@@ -44,7 +44,7 @@
 
        WORKING-STORAGE SECTION.
        77  SUC-ESTADO PIC XX.
-           88 SUC-OK VALUE 00.
+           88 SUC-OK  VALUE 00.
            88 SUC-EOF VALUE 10.
 
        77  NOV-ESTADO PIC XX.
@@ -345,7 +345,7 @@
                                           WS-SUC-ANIO-INDICE,
                                           10)
                     TO PTR-SUC-DET-OCT
-               MOVE TAB-SUC-MES-TOT-HORAS(WS-SUC-INDICE,
+               MOVE TAB-SUC-MES-TOT-HORAS(WS-SUC-INDICSUC-DET-E,
                                           WS-SUC-ANIO-INDICE,
                                           11)
                     TO PTR-SUC-DET-NOV
