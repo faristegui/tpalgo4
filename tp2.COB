@@ -92,6 +92,13 @@
            88 PAR-OK  VALUE 00.
            88 PAR-EOF VALUE 10.
 
+       01  SUCURSAL.
+           03 SUC-CUIT    PIC 9(11).
+           03 SUC-RAZON   PIC X(25).
+           03 SUC-ACCION  PIC XX.
+           03 SUC-ESTADO  PIC XX.
+              88 SUC-OK VALUE 00.
+
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
            SORT ORDEN ON ASCENDING KEY REG-ORD-RAZON
@@ -103,6 +110,16 @@
            STOP RUN.
 
        ENTRADA SECTION.
+       PROCESO-ENTRADA.
+           PERFORM INICIO-ENTRADA.
+           PERFORM LEO-PARAMETROS.
+           PERFORM BUSCO-CUIT-DESDE.
+           PERFORM PROC-ENTRADA UNTIL
+                                (TIM-EOF
+                                 OR REG-TIM-CUIT > REG-PAR-CUIT-HASTA).
+           PERFORM FIN-ENTRADA.
+
+       ENTRADA-PROCESOS SECTION.
        INICIO-ENTRADA.
            OPEN INPUT NOVTIMES.
            IF (NOT TIM-OK) THEN
@@ -118,13 +135,93 @@
                STOP RUN
            END-IF.
 
+           MOVE 1 TO SUC-ACCION.
+           CALL 'SUCURSALES' USING SUCURSAL.
+           IF (SUC-OK) THEN
+               DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
+
+       LEO-PARAMETROS.
+           READ PARAMETROS RECORD INTO REG-PAR.
+           IF ((NOT PAR-OK) AND (NOT PAR-EOF)) THEN
+               DISPLAY "ERROR EN READ Profesores: " PROF-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
+
+       BUSCO-CUIT-DESDE.
+           MOVE REG-PAR-CUIT-DESDE TO REG-TIM-CUIT.
+           START NOVTIMES KEY IS >= REG-TIM-CUIT.
+
+       LEO-NOVTIMES.
+           READ NOVTIMES NEXT RECORD INTO REG-TIM.
+           IF ((NOT TIM-OK) AND (NOT TIM-EOF)) THEN
+               DISPLAY "ERROR EN READ Times: " TIM-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
+
+       PROC-ENTRADA.
+           PERFORM BUSCO-SUCURSAL.
+           PERFORM LIBERA-REGISTRO.
+           PERFORM LEO-NOVTIMES.
+
+       BUSCO-SUCURSAL.
+           MOVE REG-TIM-CUIT TO SUC-CUIT.
+           MOVE 2 TO SUC-ACCION.
+           CALL 'SUCURSALES' USING SUCURSAL.
+           IF (SUC-OK) THEN
+               DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
+
+       LIBERA-REGISTRO.
+           MOVE REG-TIM-NUMERO TO REG-ORD-NUMERO.
+           MOVE REG-TIM-FECHA TO REG-ORD-FECHA.
+           MOVE REG-TIM-CUIT TO REG-ORD-CUIT.
+           MOVE REG-TIM-TIP_CLASE TO REG-ORD-TIP_CLASE.
+           MOVE REG-TIM-HORAS TO REG-ORD-HORAS.
+           MOVE SUC-RAZON TO REG-ORD-RAZON.
+           RELEASE REG-ORD.
+
        FIN-ENTRADA.
            CLOSE NOVTIMES.
            CLOSE PARAMETROS.
 
+           MOVE 2 TO SUC-ACCION.
+           CALL 'SUCURSALES' USING SUCURSAL.
+           IF (SUC-OK) THEN
+               DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
+
        SALIDA SECTION.
+       PROCESO-SALIDA.
+           PERFORM INICIO-SALIDA.
+           PERFORM FIN-SALIDA.
+
+       SALIDA-PROCESOS SECTION.
        INICIO-SALIDA.
+           OPEN INPUT PROFESORES.
+           IF (NOT PROF-OK) THEN
+               DISPLAY "ERROR EN OPEN Profesores: " PROF-ESTADO
+               PERFORM FIN-SALIDA
+               STOP RUN
+           END-IF.
+
+           OPEN INPUT TARIFAS.
+           IF (NOT TAR-OK) THEN
+               DISPLAY "ERROR EN OPEN Tarifas: " TAR-ESTADO
+               PERFORM FIN-SALIDA
+               STOP RUN
+           END-IF.
 
        FIN-SALIDA.
+           CLOSE PROFESORES.
+           CLOSE TARIFAS.
 
        END PROGRAM TP2.
