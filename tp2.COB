@@ -9,7 +9,8 @@
 
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT ORDEN ASSIGN TO DISK.
+           SELECT ORDEN ASSIGN TO DISK
+           FILE STATUS IS ORD-ESTADO.
 
            SELECT NOVTIMES ASSIGN TO DISK
            ORGANIZATION IS INDEXED
@@ -23,7 +24,8 @@
            FILE STATUS IS PROF-ESTADO.
 
            SELECT TARIFAS ASSIGN TO DISK
-           ORGANIZATION IS LINE SEQUENTIAL
+           ORGANIZATION IS INDEXED
+           RECORD KEY IS REG-TAR-CLAVE
            FILE STATUS IS TAR-ESTADO.
 
            SELECT PARAMETROS ASSIGN TO DISK
@@ -35,10 +37,10 @@
        FILE SECTION.
        SD  ORDEN DATA RECORD IS REG-ORD.
        01  REG-ORD.
-           03 REG-ORD-NUMERO    PIC X(05).
-           03 REG-ORD-FECHA     PIC 9(08).
+           03 REG-ORD-NUMERO    PIC X(5).
+           03 REG-ORD-FECHA     PIC 9(8).
            03 REG-ORD-CUIT      PIC 9(11).
-           03 REG-ORD-TIP_CLASE PIC X(04).
+           03 REG-ORD-TIP_CLASE PIC X(4).
            03 REG-ORD-HORAS     PIC 9(2)V99.
            03 REG-ORD-RAZON     PIC X(25).
 
@@ -46,11 +48,11 @@
            VALUE OF FILE-ID IS "files/NovTimes.dat".
        01  REG-TIM.
            03 REG-TIM-CLAVE.
-              05 REG-TIM-NUMERO PIC X(05).
-              05 REG-TIM-FECHA  PIC 9(08).
+              05 REG-TIM-NUMERO PIC X(5).
+              05 REG-TIM-FECHA  PIC 9(8).
               05 REG-TIM-CUIT   PIC 9(11).
               05 REG-TIM-SEC    PIC 9(4).
-           03 REG-TIM-TIP_CLASE PIC X(04).
+           03 REG-TIM-TIP_CLASE PIC X(4).
            03 REG-TIM-HORAS     PIC 9(2)V99.
 
        FD  PROFESORES LABEL RECORD IS STANDARD
@@ -65,9 +67,10 @@
        FD  TARIFAS LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/Tarifas.dat".
        01  REG-TAR.
-           03 REG-TAR-TIP_CLASE PIC X(04).
-           03 REG-TAR-VIG-DES   PIC 9(8).
-           03 REG-TAR-TARIFA    PIC 9(5)V99.
+           03 REG-TAR-CLAVE.
+              05 REG-TAR-TIP_CLASE PIC X(4).
+              05 REG-TAR-VIG-DES   PIC 9(8).
+           03 REG-TAR-TARIFA       PIC 9(5)V99.
 
        FD  PARAMETROS LABEL RECORD IS STANDARD
            VALUE OF FILE-ID IS "files/Parametros.dat".
@@ -76,6 +79,10 @@
            03 REG-PAR-CUIT-HASTA PIC 9(11).
 
        WORKING-STORAGE SECTION.
+       77  ORD-ESTADO PIC XX.
+           88 ORD-OK  VALUE 00.
+           88 ORD-EOF VALUE 10.
+
        77  TIM-ESTADO PIC XX.
            88 TIM-OK  VALUE 00.
            88 TIM-EOF VALUE 10.
@@ -93,11 +100,16 @@
            88 PAR-EOF VALUE 10.
 
        01  SUCURSAL.
-           03 SUC-CUIT    PIC 9(11).
-           03 SUC-RAZON   PIC X(25).
-           03 SUC-ACCION  PIC XX.
-           03 SUC-ESTADO  PIC XX.
-              88 SUC-OK VALUE 00.
+           03 SUC-CUIT   PIC 9(11).
+           03 SUC-RAZON  PIC X(25).
+           03 SUC-ACCION PIC XX.
+           03 SUC-ESTADO PIC XX.
+              88 SUC-OK  VALUE 00.
+
+       01  WS-RAZON-ACT  PIC X(25).
+       01  WS-FECHA-ACT  PIC X(8).
+       01  WS-NUMERO-ACT PIC X(5).
+       01  WS-TARIFA-ACT PIC 9(5)V99.
 
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
@@ -113,10 +125,13 @@
        PROCESO-ENTRADA.
            PERFORM INICIO-ENTRADA.
            PERFORM LEO-PARAMETROS.
-           PERFORM BUSCO-CUIT-DESDE.
-           PERFORM PROC-ENTRADA UNTIL
-                                (TIM-EOF
-                                 OR REG-TIM-CUIT > REG-PAR-CUIT-HASTA).
+           PERFORM POSICIONO-NOVTIMES.
+           IF (TIM-OK) THEN
+               PERFORM LEO-NOVTIMES
+               PERFORM PROC-ENTRADA
+                       UNTIL (TIM-EOF
+                              OR REG-TIM-CUIT > REG-PAR-CUIT-HASTA)
+           END-IF.
            PERFORM FIN-ENTRADA.
 
        ENTRADA-PROCESOS SECTION.
@@ -135,13 +150,13 @@
                STOP RUN
            END-IF.
 
-           MOVE 1 TO SUC-ACCION.
-           CALL 'SUCURSALES' USING SUCURSAL.
-           IF (SUC-OK) THEN
-               DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
-               PERFORM FIN-ENTRADA
-               STOP RUN
-           END-IF.
+      *     MOVE 1 TO SUC-ACCION.
+      *     CALL 'SUCURSALES' USING SUCURSAL.
+      *     IF (SUC-OK) THEN
+      *         DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
+      *         PERFORM FIN-ENTRADA
+      *         STOP RUN
+      *     END-IF.
 
        LEO-PARAMETROS.
            READ PARAMETROS RECORD INTO REG-PAR.
@@ -151,7 +166,7 @@
                STOP RUN
            END-IF.
 
-       BUSCO-CUIT-DESDE.
+       POSICIONO-NOVTIMES.
            MOVE REG-PAR-CUIT-DESDE TO REG-TIM-CUIT.
            START NOVTIMES KEY IS >= REG-TIM-CUIT.
 
@@ -169,14 +184,14 @@
            PERFORM LEO-NOVTIMES.
 
        BUSCO-SUCURSAL.
-           MOVE REG-TIM-CUIT TO SUC-CUIT.
-           MOVE 2 TO SUC-ACCION.
-           CALL 'SUCURSALES' USING SUCURSAL.
-           IF (SUC-OK) THEN
-               DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
-               PERFORM FIN-ENTRADA
-               STOP RUN
-           END-IF.
+      *     MOVE REG-TIM-CUIT TO SUC-CUIT.
+      *     MOVE 2 TO SUC-ACCION.
+      *     CALL 'SUCURSALES' USING SUCURSAL.
+      *     IF NOT (SUC-OK) THEN
+      *         DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
+      *         PERFORM FIN-ENTRADA
+      *         STOP RUN
+      *     END-IF.
 
        LIBERA-REGISTRO.
            MOVE REG-TIM-NUMERO TO REG-ORD-NUMERO.
@@ -191,17 +206,21 @@
            CLOSE NOVTIMES.
            CLOSE PARAMETROS.
 
-           MOVE 2 TO SUC-ACCION.
-           CALL 'SUCURSALES' USING SUCURSAL.
-           IF (SUC-OK) THEN
-               DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
-               PERFORM FIN-ENTRADA
-               STOP RUN
-           END-IF.
+      *     MOVE 2 TO SUC-ACCION.
+      *     CALL 'SUCURSALES' USING SUCURSAL.
+      *     IF (SUC-OK) THEN
+      *         DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
+      *         PERFORM FIN-ENTRADA
+      *         STOP RUN
+      *     END-IF.
 
        SALIDA SECTION.
        PROCESO-SALIDA.
            PERFORM INICIO-SALIDA.
+           PERFORM RETORNO-REGISTRO.
+           PERFORM INICIO-TOT-GENERAL.
+           PERFORM PROC-SALIDA UNTIL
+                               (ORD-EOF).
            PERFORM FIN-SALIDA.
 
        SALIDA-PROCESOS SECTION.
@@ -219,6 +238,92 @@
                PERFORM FIN-SALIDA
                STOP RUN
            END-IF.
+
+       RETORNO-REGISTRO.
+           RETURN ORDEN RECORD INTO REG-ORD
+                  AT END MOVE 10 TO ORD-ESTADO.
+
+       INICIO-TOT-GENERAL.
+
+
+       PROC-SALIDA.
+           MOVE REG-ORD-RAZON TO WS-RAZON-ACT.
+           PERFORM INICIO-TOT-SUCURSAL.
+           PERFORM IMPRIMO-CAB-SUCURSAL.
+           PERFORM PROC-SUCURSAL
+                   UNTIL
+                   (ORD-EOF
+                    OR WS-RAZON-ACT NOT = REG-ORD-RAZON).
+           PERFORM IMPRIMO-TOT-SUCURSAL.
+
+       INICIO-TOT-SUCURSAL.
+
+       IMPRIMO-CAB-SUCURSAL.
+
+       IMPRIMO-TOT-SUCURSAL.
+
+       PROC-SUCURSAL.
+           MOVE REG-ORD-FECHA TO WS-FECHA-ACT.
+           PERFORM INICIO-TOT-FECHA.
+           PERFORM PROC-FECHA
+                   UNTIL
+                   (ORD-EOF
+                    OR WS-RAZON-ACT NOT = REG-ORD-RAZON
+                    OR WS-FECHA-ACT NOT = REG-ORD-FECHA).
+           PERFORM IMPRIMO-TOT-FECHA.
+           PERFORM SUMO-TOT-SUCURSAL.
+
+       INICIO-TOT-FECHA.
+
+       IMPRIMO-TOT-FECHA.
+
+       SUMO-TOT-SUCURSAL.
+
+       PROC-FECHA.
+           MOVE REG-ORD-NUMERO TO WS-NUMERO-ACT.
+           PERFORM LEO-PROFESOR.
+           IF (PROF-OK) THEN
+               PERFORM PORC-PROFESOR
+                       UNTIL
+                       (ORD-EOF
+                        OR WS-RAZON-ACT NOT = REG-ORD-RAZON
+                        OR WS-FECHA-ACT NOT = REG-ORD-FECHA
+                        OR WS-NUMERO-ACT NOT = REG-ORD-NUMERO)
+           END-IF.
+
+       LEO-PROFESOR.
+           MOVE REG-ORD-NUMERO TO REG-PROF-NUMERO.
+           START PROFESORES KEY IS = REG-PROF-NUMERO
+               INVALID KEY MOVE 'Sin profesor' TO REG-PROF-NOMBRE
+           END-START.
+           READ PROFESORES NEXT RECORD INTO REG-PROF.
+
+       PORC-PROFESOR.
+           PERFORM BUSCO-TARIFA.
+           PERFORM RETORNO-REGISTRO.
+
+       IMPRIMO-NOVTIMES.
+
+       SUMO-TOT-FECHA.
+
+       BUSCO-TARIFA.
+           PERFORM POSICIONO-TARIFA.
+           IF (TAR-OK) THEN
+               PERFORM LEO-TARIFA
+               PERFORM ASIGNO-TARIFA-ACT
+           END-IF.
+
+       POSICIONO-TARIFA.
+           MOVE REG-ORD-TIP_CLASE TO REG-TAR-TIP_CLASE.
+           MOVE ZEROES TO REG-TAR-VIG-DES.
+           START TARIFAS KEY IS > REG-TAR-CLAVE.
+
+       LEO-TARIFA.
+           READ TARIFAS NEXT RECORD INTO REG-TAR.
+
+       ASIGNO-TARIFA-ACT.
+           MOVE REG-TAR-TARIFA TO WS-TARIFA-ACT.
+           PERFORM LEO-TARIFA.
 
        FIN-SALIDA.
            CLOSE PROFESORES.
