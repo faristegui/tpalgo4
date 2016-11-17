@@ -106,10 +106,15 @@
            03 SUC-ESTADO PIC XX.
               88 SUC-OK  VALUE 00.
 
-       01  WS-RAZON-ACT  PIC X(25).
-       01  WS-FECHA-ACT  PIC X(8).
-       01  WS-NUMERO-ACT PIC X(5).
-       01  WS-TARIFA-ACT PIC 9(5)V99.
+       01  WS-RAZON-ACT       PIC X(25).
+       01  WS-FECHA-ACT       PIC X(8).
+       01  FILLER REDEFINES WS-FECHA-ACT.
+           03 WS-FECHA-ACT-AA PIC 9(4).
+           03 WS-FECHA-ACT-MM PIC 9(2).
+           03 WS-FECHA-ACT-DD PIC 9(2).
+       01  WS-NUMERO-ACT      PIC X(5).
+       01  WS-TARIFA-ACT      PIC 9(5)V99.
+       01  WS-IMPORTE-ACT     PIC 9(7)V99.
 
        01  WS-TOT-FECHA-HORAS      PIC 9(3)V99.
        01  WS-TOT-FECHA-IMPORTE    PIC 9(8)V99.
@@ -117,6 +122,82 @@
        01  WS-TOT-SUCURSAL-IMPORTE PIC 9(9)V99.
        01  WS-TOT-GENERAL-HORAS    PIC 9(5)V99.
        01  WS-TOT-GENERAL-IMPORTE  PIC 9(10)V99.
+
+       01  PTR-CABECERA.
+           03 FILLER       PIC X(6)  VALUE "FECHA ".
+           03 PTR-CAB-DD   PIC 99.
+           03 FILLER       PIC X(1)  VALUE "/".
+           03 PTR-CAB-MM   PIC 99.
+           03 FILLER       PIC X(1)  VALUE "/".
+           03 PTR-CAB-AA   PIC 9999.
+           03 FILLER       PIC X(48) VALUE SPACES.
+           03 FILLER       PIC X(5)  VALUE "HOJA ".
+           03 PTR-CAB-HOJA PIC 999.
+
+       01  PTR-TITULO.
+           03 FILLER PIC X(20) VALUE SPACES.
+           03 FILLER PIC X(28) VALUE "Horas aplicadas por sucursal".
+           03 FILLER PIC X(20) VALUE SPACES.
+
+       01  PTR-SUCURSAL-RAZON.
+           03 FILLER        PIC X(9) VALUE "Sucursal:".
+           03 FILLER        PIC X(1) VALUE SPACES.
+           03 PTR-SUC-RAZON PIC X(25).
+
+       01  PTR-SUCURSAL-CUIT.
+           03 FILLER       PIC X(5) VALUE "Cuit:".
+           03 FILLER       PIC X(1) VALUE SPACES.
+           03 PTR-SUC-CUIT PIC 9(11).
+
+       01  PTR-NOV-CABECERA.
+           03 FILLER PIC X(5)  VALUE "Fecha".
+           03 FILLER PIC X(6)  VALUE SPACES.
+           03 FILLER PIC X(8)  VALUE "Profesor".
+           03 FILLER PIC X(1)  VALUE SPACES.
+           03 FILLER PIC X(6)  VALUE "Nombre".
+           03 FILLER PIC X(20) VALUE SPACES.
+           03 FILLER PIC X(5)  VALUE "Horas".
+           03 FILLER PIC X(3)  VALUE SPACES.
+           03 FILLER PIC X(7)  VALUE "Importe".
+
+       01  PTR-NOV-DETALLE.
+           03 PTR-NOV-DETALLE-DD      PIC 99.
+           03 FILLER                  PIC X(1)        VALUE "/".
+           03 PTR-NOV-DETALLE-MM      PIC 99.
+           03 FILLER                  PIC X(1)        VALUE "/".
+           03 PTR-NOV-DETALLE-AA      PIC 9999.
+           03 FILLER                  PIC X(1)        VALUE SPACES.
+           03 PTR-NOV-DETALLE-NUMERO  PIC X(5).
+           03 FILLER                  PIC X(4)        VALUE SPACES.
+           03 PTR-NOV-DETALLE-NOMBRE  PIC X(25).
+           03 FILLER                  PIC X(3)        VALUE SPACES.
+           03 PTR-NOV-DETALLE-HORAS   PIC Z9,99.
+           03 FILLER                  PIC X(4)        VALUE SPACES.
+           03 PTR-NOV-DETALLE-IMPORTE PIC ZZZZZZ9,99.
+
+       01  PTR-TOT-FECHA.
+           03 FILLER                PIC X(17)     VALUE
+                                                    "Totales por fecha".
+           03 FILLER                PIC X(35)     VALUE SPACES.
+           03 PTR-TOT-FECHA-HORAS   PIC ZZ9,99.
+           03 FILLER                PIC X(3)      VALUE SPACES.
+           03 PTR-TOT-FECHA-IMPORTE PIC Z(7)9,99.
+
+       01  PTR-TOT-SUCURSAL.
+           03 FILLER                   PIC X(20)     VALUE
+                                                 "Totales por sucursal".
+           03 FILLER                   PIC X(31)     VALUE SPACES.
+           03 PTR-TOT-SUCURSAL-HORAS   PIC ZZZ9,99.
+           03 FILLER                   PIC X(2)      VALUE SPACES.
+           03 PTR-TOT-SUCURSAL-IMPORTE PIC Z(8)9,99.
+
+       01  PTR-TOT-GENERAL.
+           03 FILLER                  PIC X(13)     VALUE
+                                                        "Total general".
+           03 FILLER                  PIC X(37)     VALUE SPACES.
+           03 PTR-TOT-GENERAL-HORAS   PIC ZZZZ9,99.
+           03 FILLER                  PIC X(1)      VALUE SPACES.
+           03 PTR-TOT-GENERAL-IMPORTE PIC Z(9)9,99.
 
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
@@ -158,7 +239,7 @@
            END-IF.
 
       *     MOVE 1 TO SUC-ACCION.
-      *     CALL 'SUCURSALES' USING SUCURSAL.
+      *     CALL 'sucursales' USING SUCURSAL.
       *     IF (SUC-OK) THEN
       *         DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
       *         PERFORM FIN-ENTRADA
@@ -187,13 +268,15 @@
 
        PROC-ENTRADA.
            PERFORM BUSCO-SUCURSAL.
-           PERFORM LIBERA-REGISTRO.
-           PERFORM LEO-NOVTIMES.
+           IF (SUC-OK) THEN
+               PERFORM LIBERA-REGISTRO
+               PERFORM LEO-NOVTIMES
+           END-IF.
 
        BUSCO-SUCURSAL.
       *     MOVE REG-TIM-CUIT TO SUC-CUIT.
       *     MOVE 2 TO SUC-ACCION.
-      *     CALL 'SUCURSALES' USING SUCURSAL.
+      *     CALL 'sucursales' USING SUCURSAL.
       *     IF NOT (SUC-OK) THEN
       *         DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
       *         PERFORM FIN-ENTRADA
@@ -214,7 +297,7 @@
            CLOSE PARAMETROS.
 
       *     MOVE 2 TO SUC-ACCION.
-      *     CALL 'SUCURSALES' USING SUCURSAL.
+      *     CALL 'sucursales' USING SUCURSAL.
       *     IF (SUC-OK) THEN
       *         DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
       *         PERFORM FIN-ENTRADA
@@ -228,6 +311,7 @@
            PERFORM INICIO-TOT-GENERAL.
            PERFORM PROC-SALIDA UNTIL
                                (ORD-EOF).
+           PERFORM IMPRIMO-TOT-GENERAL.
            PERFORM FIN-SALIDA.
 
        SALIDA-PROCESOS SECTION.
@@ -256,26 +340,38 @@
 
        PROC-SALIDA.
            MOVE REG-ORD-RAZON TO WS-RAZON-ACT.
-           PERFORM INICIO-TOT-SUCURSAL.
            PERFORM IMPRIMO-CAB-SUCURSAL.
+           PERFORM INICIO-TOT-SUCURSAL.
            PERFORM PROC-SUCURSAL
                    UNTIL
                    (ORD-EOF
                     OR WS-RAZON-ACT NOT = REG-ORD-RAZON).
-           PERFORM IMPRIMO-TOT-SUCURSAL.
            PERFORM SUMO-TOT-GENERAL.
+           PERFORM IMPRIMO-TOT-SUCURSAL.
+
+       IMPRIMO-TOT-GENERAL.
+           MOVE WS-TOT-GENERAL-HORAS TO PTR-TOT-GENERAL-HORAS.
+           MOVE WS-TOT-GENERAL-IMPORTE TO PTR-TOT-GENERAL-IMPORTE.
+           DISPLAY PTR-TOT-GENERAL.
 
        INICIO-TOT-SUCURSAL.
            MOVE ZERO TO WS-TOT-SUCURSAL-HORAS.
            MOVE ZERO TO WS-TOT-SUCURSAL-IMPORTE.
 
        IMPRIMO-CAB-SUCURSAL.
-
-       IMPRIMO-TOT-SUCURSAL.
+           MOVE REG-ORD-RAZON TO PTR-SUC-RAZON.
+           MOVE REG-ORD-CUIT TO PTR-SUC-CUIT.
+           DISPLAY PTR-SUCURSAL-RAZON.
+           DISPLAY PTR-SUCURSAL-CUIT.
 
        SUMO-TOT-GENERAL.
            ADD WS-TOT-SUCURSAL-HORAS TO WS-TOT-GENERAL-HORAS.
            ADD WS-TOT-SUCURSAL-IMPORTE TO WS-TOT-GENERAL-IMPORTE.
+
+       IMPRIMO-TOT-SUCURSAL.
+           MOVE WS-TOT-SUCURSAL-HORAS TO PTR-TOT-SUCURSAL-HORAS.
+           MOVE WS-TOT-SUCURSAL-IMPORTE TO PTR-TOT-SUCURSAL-IMPORTE.
+           DISPLAY PTR-TOT-SUCURSAL.
 
        PROC-SUCURSAL.
            MOVE REG-ORD-FECHA TO WS-FECHA-ACT.
@@ -285,18 +381,21 @@
                    (ORD-EOF
                     OR WS-RAZON-ACT NOT = REG-ORD-RAZON
                     OR WS-FECHA-ACT NOT = REG-ORD-FECHA).
-           PERFORM IMPRIMO-TOT-FECHA.
            PERFORM SUMO-TOT-SUCURSAL.
+           PERFORM IMPRIMO-TOT-FECHA.
 
        INICIO-TOT-FECHA.
            MOVE ZERO TO WS-TOT-FECHA-HORAS.
            MOVE ZERO TO WS-TOT-FECHA-IMPORTE.
 
-       IMPRIMO-TOT-FECHA.
-
        SUMO-TOT-SUCURSAL.
            ADD WS-TOT-FECHA-HORAS TO WS-TOT-SUCURSAL-HORAS.
            ADD WS-TOT-FECHA-IMPORTE TO WS-TOT-SUCURSAL-IMPORTE.
+
+       IMPRIMO-TOT-FECHA.
+           MOVE WS-TOT-FECHA-HORAS TO PTR-TOT-FECHA-HORAS.
+           MOVE WS-TOT-FECHA-IMPORTE TO PTR-TOT-FECHA-IMPORTE.
+           DISPLAY PTR-TOT-FECHA.
 
        PROC-FECHA.
            MOVE REG-ORD-NUMERO TO WS-NUMERO-ACT.
@@ -319,14 +418,24 @@
 
        PORC-PROFESOR.
            PERFORM BUSCO-TARIFA.
+           PERFORM SUMO-TOT-FECHA.
+           PERFORM IMPRIMO-NOVTIMES.
            PERFORM RETORNO-REGISTRO.
 
        IMPRIMO-NOVTIMES.
+           MOVE WS-FECHA-ACT-DD TO PTR-NOV-DETALLE-DD.
+           MOVE WS-FECHA-ACT-MM TO PTR-NOV-DETALLE-MM.
+           MOVE WS-FECHA-ACT-AA TO PTR-NOV-DETALLE-AA.
+           MOVE WS-NUMERO-ACT TO PTR-NOV-DETALLE-NUMERO.
+           MOVE REG-PROF-NOMBRE TO PTR-NOV-DETALLE-NOMBRE.
+           MOVE REG-ORD-HORAS TO PTR-NOV-DETALLE-HORAS.
+           MOVE WS-IMPORTE-ACT TO PTR-NOV-DETALLE-IMPORTE.
 
        SUMO-TOT-FECHA.
            ADD REG-ORD-HORAS TO WS-TOT-FECHA-HORAS.
-           MULTIPLY REG-ORD-HORAS BY WS-TARIFA-ACT.
-           ADD WS-TARIFA-ACT TO WS-TOT-FECHA-IMPORTE.
+           MULTIPLY REG-ORD-HORAS BY WS-TARIFA-ACT
+                                  GIVING WS-IMPORTE-ACT.
+           ADD WS-IMPORTE-ACT TO WS-TOT-FECHA-IMPORTE.
 
        BUSCO-TARIFA.
            PERFORM POSICIONO-TARIFA.
