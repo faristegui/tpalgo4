@@ -106,6 +106,18 @@
            03 SUC-ESTADO PIC XX.
               88 SUC-OK  VALUE 00.
 
+       01  WS-PROF-GENERICO.
+           03 FILLER PIC X(5)  VALUE "NNNNN".
+           03 FILLER PIC 9(8)  VALUE ZEROES.
+           03 FILLER PIC X(25) VALUE "SIN DESCRIPCION".
+           03 FILLER PIC X(20) VALUE "SIN DIRECCION".
+           03 FILLER PIC X(20) VALUE "SIN TELEFONO".
+
+       01  WS-TAR-GENERICA.
+           03 FILLER PIC X(4)    VALUE "NNNN".
+           03 FILLER PIC 9(8)    VALUE 99999999.
+           03 FILLER PIC 9(5)V99 VALUE ZEROES.
+
        01  WS-RAZON-ACT       PIC X(25).
        01  WS-FECHA-ACT       PIC X(8).
        01  FILLER REDEFINES WS-FECHA-ACT.
@@ -113,9 +125,13 @@
            03 WS-FECHA-ACT-MM PIC 9(2).
            03 WS-FECHA-ACT-DD PIC 9(2).
        01  WS-NUMERO-ACT      PIC X(5).
-       01  WS-TARIFA-ACT      PIC 9(5)V99.
+       01  WS-TAR-ACTUAL.
+           03 WS-TAR-ACTUAL-TIP_CLASE PIC X(4).
+           03 WS-TAR-ACTUAL-VIG-DES   PIC 9(8).
+           03 WS-TAR-ACTUAL-TARIFA    PIC 9(5)V99.
        01  WS-IMPORTE-ACT     PIC 9(7)V99.
 
+       01  WS-TOT-HOJAS            PIC 9(3).
        01  WS-TOT-FECHA-HORAS      PIC 9(3)V99.
        01  WS-TOT-FECHA-IMPORTE    PIC 9(8)V99.
        01  WS-TOT-SUCURSAL-HORAS   PIC 9(4)V99.
@@ -178,7 +194,7 @@
        01  PTR-TOT-FECHA.
            03 FILLER                PIC X(17)     VALUE
                                                     "Totales por fecha".
-           03 FILLER                PIC X(35)     VALUE SPACES.
+           03 FILLER                PIC X(30)     VALUE SPACES.
            03 PTR-TOT-FECHA-HORAS   PIC ZZ9,99.
            03 FILLER                PIC X(3)      VALUE SPACES.
            03 PTR-TOT-FECHA-IMPORTE PIC Z(7)9,99.
@@ -186,7 +202,7 @@
        01  PTR-TOT-SUCURSAL.
            03 FILLER                   PIC X(20)     VALUE
                                                  "Totales por sucursal".
-           03 FILLER                   PIC X(31)     VALUE SPACES.
+           03 FILLER                   PIC X(26)     VALUE SPACES.
            03 PTR-TOT-SUCURSAL-HORAS   PIC ZZZ9,99.
            03 FILLER                   PIC X(2)      VALUE SPACES.
            03 PTR-TOT-SUCURSAL-IMPORTE PIC Z(8)9,99.
@@ -194,7 +210,7 @@
        01  PTR-TOT-GENERAL.
            03 FILLER                  PIC X(13)     VALUE
                                                         "Total general".
-           03 FILLER                  PIC X(37)     VALUE SPACES.
+           03 FILLER                  PIC X(32)     VALUE SPACES.
            03 PTR-TOT-GENERAL-HORAS   PIC ZZZZ9,99.
            03 FILLER                  PIC X(1)      VALUE SPACES.
            03 PTR-TOT-GENERAL-IMPORTE PIC Z(9)9,99.
@@ -274,6 +290,8 @@
            END-IF.
 
        BUSCO-SUCURSAL.
+           MOVE "FRUTA" TO SUC-RAZON.
+           MOVE 00 TO SUC-ESTADO.
       *     MOVE REG-TIM-CUIT TO SUC-CUIT.
       *     MOVE 2 TO SUC-ACCION.
       *     CALL 'sucursales' USING SUCURSAL.
@@ -316,6 +334,8 @@
 
        SALIDA-PROCESOS SECTION.
        INICIO-SALIDA.
+           MOVE ZERO TO WS-TOT-HOJAS.
+
            OPEN INPUT PROFESORES.
            IF (NOT PROF-OK) THEN
                DISPLAY "ERROR EN OPEN Profesores: " PROF-ESTADO
@@ -359,10 +379,15 @@
            MOVE ZERO TO WS-TOT-SUCURSAL-IMPORTE.
 
        IMPRIMO-CAB-SUCURSAL.
+           ADD 1 TO WS-TOT-HOJAS.
+           MOVE WS-TOT-HOJAS TO PTR-CAB-HOJA.
            MOVE REG-ORD-RAZON TO PTR-SUC-RAZON.
            MOVE REG-ORD-CUIT TO PTR-SUC-CUIT.
+           DISPLAY PTR-CABECERA.
+           DISPLAY PTR-TITULO.
            DISPLAY PTR-SUCURSAL-RAZON.
            DISPLAY PTR-SUCURSAL-CUIT.
+           DISPLAY PTR-NOV-CABECERA.
 
        SUMO-TOT-GENERAL.
            ADD WS-TOT-SUCURSAL-HORAS TO WS-TOT-GENERAL-HORAS.
@@ -399,21 +424,23 @@
 
        PROC-FECHA.
            MOVE REG-ORD-NUMERO TO WS-NUMERO-ACT.
-           PERFORM LEO-PROFESOR.
+           PERFORM POSICIONO-PROFESOR.
            IF (PROF-OK) THEN
-               PERFORM PORC-PROFESOR
-                       UNTIL
-                       (ORD-EOF
-                        OR WS-RAZON-ACT NOT = REG-ORD-RAZON
-                        OR WS-FECHA-ACT NOT = REG-ORD-FECHA
-                        OR WS-NUMERO-ACT NOT = REG-ORD-NUMERO)
+               PERFORM LEO-PROFESOR
            END-IF.
+           PERFORM PORC-PROFESOR
+                   UNTIL
+                   (ORD-EOF
+                    OR WS-RAZON-ACT NOT = REG-ORD-RAZON
+                    OR WS-FECHA-ACT NOT = REG-ORD-FECHA
+                    OR WS-NUMERO-ACT NOT = REG-ORD-NUMERO).
+
+       POSICIONO-PROFESOR.
+           MOVE WS-PROF-GENERICO TO REG-PROF
+           MOVE REG-ORD-NUMERO TO REG-PROF-NUMERO.
+           START PROFESORES KEY IS = REG-PROF-NUMERO.
 
        LEO-PROFESOR.
-           MOVE REG-ORD-NUMERO TO REG-PROF-NUMERO.
-           START PROFESORES KEY IS = REG-PROF-NUMERO
-               INVALID KEY MOVE 'Sin profesor' TO REG-PROF-NOMBRE
-           END-START.
            READ PROFESORES NEXT RECORD INTO REG-PROF.
 
        PORC-PROFESOR.
@@ -430,10 +457,11 @@
            MOVE REG-PROF-NOMBRE TO PTR-NOV-DETALLE-NOMBRE.
            MOVE REG-ORD-HORAS TO PTR-NOV-DETALLE-HORAS.
            MOVE WS-IMPORTE-ACT TO PTR-NOV-DETALLE-IMPORTE.
+           DISPLAY PTR-NOV-DETALLE.
 
        SUMO-TOT-FECHA.
            ADD REG-ORD-HORAS TO WS-TOT-FECHA-HORAS.
-           MULTIPLY REG-ORD-HORAS BY WS-TARIFA-ACT
+           MULTIPLY REG-ORD-HORAS BY WS-TAR-ACTUAL-TARIFA
                                   GIVING WS-IMPORTE-ACT.
            ADD WS-IMPORTE-ACT TO WS-TOT-FECHA-IMPORTE.
 
@@ -442,9 +470,16 @@
            IF (TAR-OK) THEN
                PERFORM LEO-TARIFA
                PERFORM ASIGNO-TARIFA-ACT
+                       UNTIL (TAR-EOF
+                            OR REG-ORD-TIP_CLASE NOT = REG-TAR-TIP_CLASE
+                            OR REG-ORD-FECHA < REG-TAR-VIG-DES)
+               IF (REG-ORD-TIP_CLASE NOT = WS-TAR-ACTUAL-TIP_CLASE) THEN
+                   MOVE WS-TAR-GENERICA TO WS-TAR-ACTUAL
+               END-IF
            END-IF.
 
        POSICIONO-TARIFA.
+           MOVE WS-TAR-GENERICA TO REG-TAR
            MOVE REG-ORD-TIP_CLASE TO REG-TAR-TIP_CLASE.
            MOVE ZEROES TO REG-TAR-VIG-DES.
            START TARIFAS KEY IS > REG-TAR-CLAVE.
@@ -453,7 +488,14 @@
            READ TARIFAS NEXT RECORD INTO REG-TAR.
 
        ASIGNO-TARIFA-ACT.
-           MOVE REG-TAR-TARIFA TO WS-TARIFA-ACT.
+      *     DISPLAY "*******************".
+      *     DISPLAY REG-ORD-TIP_CLASE.
+      *     DISPLAY REG-TAR-TIP_CLASE.
+      *     DISPLAY REG-ORD-FECHA.
+      *     DISPLAY REG-TAR-VIG-DES.
+      *     DISPLAY "*******************".
+
+           MOVE REG-TAR TO WS-TAR-ACTUAL.
            PERFORM LEO-TARIFA.
 
        FIN-SALIDA.

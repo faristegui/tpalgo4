@@ -1,0 +1,270 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. GENERADOR-TP2.
+
+       ENVIRONMENT DIVISION.
+
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT NOVTIMES ASSIGN TO DISK
+           ORGANIZATION IS INDEXED
+           RECORD KEY IS REG-TIM-CLAVE
+           ALTERNATE RECORD KEY IS REG-TIM-CUIT WITH DUPLICATES
+           FILE STATUS IS TIM-ESTADO.
+
+           SELECT PROFESORES ASSIGN TO DISK
+           ORGANIZATION IS INDEXED
+           RECORD KEY IS REG-PROF-NUMERO
+           FILE STATUS IS PROF-ESTADO.
+
+           SELECT TARIFAS ASSIGN TO DISK
+           ORGANIZATION IS INDEXED
+           RECORD KEY IS REG-TAR-CLAVE
+           FILE STATUS IS TAR-ESTADO.
+
+           SELECT PARAMETROS ASSIGN TO DISK
+           ORGANIZATION IS LINE SEQUENTIAL
+           FILE STATUS IS PAR-ESTADO.
+
+           SELECT SUCURSALES ASSIGN TO DISK
+           ORGANIZATION IS INDEXED
+           RECORD KEY IS REG-SUC-SUCURSAL
+           ALTERNATE RECORD KEY IS REG-SUC-CUIT
+           ALTERNATE RECORD KEY IS REG-SUC-RAZON WITH DUPLICATES
+           FILE STATUS IS SUC-ESTADO.
+
+       DATA DIVISION.
+
+       FILE SECTION.
+       FD  NOVTIMES LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "files/NovTimes.dat".
+       01  REG-TIM.
+           03 REG-TIM-CLAVE.
+              05 REG-TIM-NUMERO PIC X(5).
+              05 REG-TIM-FECHA  PIC 9(8).
+              05 REG-TIM-CUIT   PIC 9(11).
+              05 REG-TIM-SEC    PIC 9(4).
+           03 REG-TIM-TIP_CLASE PIC X(4).
+           03 REG-TIM-HORAS     PIC 9(2)V99.
+
+       FD  PROFESORES LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "files/Profesores.dat".
+       01  REG-PROF.
+           03 REG-PROF-NUMERO PIC X(5).
+           03 REG-PROF-DNI    PIC 9(8).
+           03 REG-PROF-NOMBRE PIC X(25).
+           03 REG-PROF-DIRE   PIC X(20).
+           03 REG-PROF-TEL    PIC X(20).
+
+       FD  TARIFAS LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "files/Tarifas.dat".
+       01  REG-TAR.
+           03 REG-TAR-CLAVE.
+              05 REG-TAR-TIP_CLASE PIC X(4).
+              05 REG-TAR-VIG-DES   PIC 9(8).
+           03 REG-TAR-TARIFA       PIC 9(5)V99.
+
+       FD  PARAMETROS LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "files/Parametros.dat".
+       01  REG-PAR.
+           03 REG-PAR-CUIT-DESDE PIC 9(11).
+           03 REG-PAR-CUIT-HASTA PIC 9(11).
+
+       FD  SUCURSALES LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "files/Sucursales.dat".
+       01  REG-SUC.
+           03 REG-SUC-SUCURSAL PIC X(03).
+           03 REG-SUC-RAZON    PIC X(25).
+           03 REG-SUC-DIRE     PIC X(20).
+           03 REG-SUC-TEL      PIC X(20).
+           03 REG-SUC-CUIT     PIC 9(11).
+
+       WORKING-STORAGE SECTION.
+       77  ORD-ESTADO PIC XX.
+           88 ORD-OK  VALUE 00.
+           88 ORD-EOF VALUE 10.
+
+       77  TIM-ESTADO PIC XX.
+           88 TIM-OK  VALUE 00.
+           88 TIM-EOF VALUE 10.
+
+       77  PROF-ESTADO PIC XX.
+           88 PROF-OK  VALUE 00.
+           88 PROF-EOF VALUE 10.
+
+       77  TAR-ESTADO PIC XX.
+           88 TAR-OK  VALUE 00.
+           88 TAR-EOF VALUE 10.
+
+       77  PAR-ESTADO PIC XX.
+           88 PAR-OK  VALUE 00.
+           88 PAR-EOF VALUE 10.
+
+       77  SUC-ESTADO PIC XX.
+           88 SUC-OK  VALUE 00.
+           88 SUC-EOF VALUE 10.
+
+       PROCEDURE DIVISION.
+       MAIN-PROCEDURE.
+           PERFORM INICIO.
+           PERFORM CARGO-NOVTIMES.
+           PERFORM CARGO-PARAMETROS.
+           PERFORM CARGO-PROFESORES.
+           PERFORM CARGO-TARIFAS.
+           PERFORM CARGO-SUCURSALES.
+           PERFORM FIN.
+           STOP RUN.
+
+       INICIO.
+           OPEN OUTPUT NOVTIMES.
+           IF (NOT TIM-OK) THEN
+               DISPLAY "ERROR EN OPEN NovTimes: " TIM-ESTADO
+               PERFORM FIN
+               STOP RUN
+           END-IF.
+
+           OPEN OUTPUT PARAMETROS.
+           IF (NOT PAR-OK) THEN
+               DISPLAY "ERROR EN OPEN Parametros: " PAR-ESTADO
+               PERFORM FIN
+               STOP RUN
+           END-IF.
+
+           OPEN OUTPUT PROFESORES.
+           IF (NOT PROF-OK) THEN
+               DISPLAY "ERROR EN OPEN Profesores: " PROF-ESTADO
+               PERFORM FIN
+               STOP RUN
+           END-IF.
+
+           OPEN OUTPUT TARIFAS.
+           IF (NOT TAR-OK) THEN
+               DISPLAY "ERROR EN OPEN Tarifas: " TAR-ESTADO
+               PERFORM FIN
+               STOP RUN
+           END-IF.
+
+           OPEN OUTPUT SUCURSALES.
+           IF (NOT SUC-OK) THEN
+               DISPLAY "ERROR EN OPEN Sucursales: " SUC-ESTADO
+               PERFORM FIN
+               STOP RUN
+           END-IF.
+
+       CARGO-NOVTIMES.
+           MOVE "00001" TO REG-TIM-NUMERO.
+           MOVE 20160101 TO REG-TIM-FECHA.
+           MOVE 11111111111 TO REG-TIM-CUIT.
+           MOVE 1111 TO REG-TIM-SEC.
+           MOVE "0001" TO REG-TIM-TIP_CLASE.
+           MOVE 2,5 TO REG-TIM-HORAS.
+           WRITE REG-TIM.
+
+           MOVE "00002" TO REG-TIM-NUMERO.
+           MOVE 20160101 TO REG-TIM-FECHA.
+           MOVE 22222222222 TO REG-TIM-CUIT.
+           MOVE 1111 TO REG-TIM-SEC.
+           MOVE "0002" TO REG-TIM-TIP_CLASE.
+           MOVE 2,5 TO REG-TIM-HORAS.
+           WRITE REG-TIM.
+
+           MOVE "00003" TO REG-TIM-NUMERO.
+           MOVE 20160101 TO REG-TIM-FECHA.
+           MOVE 33333333333 TO REG-TIM-CUIT.
+           MOVE 1111 TO REG-TIM-SEC.
+           MOVE "0003" TO REG-TIM-TIP_CLASE.
+           MOVE 2,5 TO REG-TIM-HORAS.
+           WRITE REG-TIM.
+
+           MOVE "00004" TO REG-TIM-NUMERO.
+           MOVE 20160101 TO REG-TIM-FECHA.
+           MOVE 44444444444 TO REG-TIM-CUIT.
+           MOVE 1111 TO REG-TIM-SEC.
+           MOVE "0004" TO REG-TIM-TIP_CLASE.
+           MOVE 2,5 TO REG-TIM-HORAS.
+           WRITE REG-TIM.
+
+           MOVE "00005" TO REG-TIM-NUMERO.
+           MOVE 20160101 TO REG-TIM-FECHA.
+           MOVE 55555555555 TO REG-TIM-CUIT.
+           MOVE 1111 TO REG-TIM-SEC.
+           MOVE "0005" TO REG-TIM-TIP_CLASE.
+           MOVE 2,5 TO REG-TIM-HORAS.
+           WRITE REG-TIM.
+
+       CARGO-PARAMETROS.
+           MOVE 11111111111 TO REG-PAR-CUIT-DESDE.
+           MOVE 99999999999 TO REG-PAR-CUIT-HASTA.
+           WRITE REG-PAR.
+
+       CARGO-PROFESORES.
+           MOVE "00001" TO REG-PROF-NUMERO.
+           MOVE 11111111 TO REG-PROF-DNI.
+           MOVE "Profesor 1" TO REG-PROF-NOMBRE.
+           MOVE "Direccion 1" TO REG-PROF-DIRE.
+           MOVE "1111-1111" TO REG-PROF-TEL.
+           WRITE REG-PROF.
+
+           MOVE "00002" TO REG-PROF-NUMERO.
+           MOVE 22222222 TO REG-PROF-DNI.
+           MOVE "Profesor 2" TO REG-PROF-NOMBRE.
+           MOVE "Direccion 2" TO REG-PROF-DIRE.
+           MOVE "2222-2222" TO REG-PROF-TEL.
+           WRITE REG-PROF.
+
+           MOVE "00004" TO REG-PROF-NUMERO.
+           MOVE 44444444 TO REG-PROF-DNI.
+           MOVE "Profesor 4" TO REG-PROF-NOMBRE.
+           MOVE "Direccion 4" TO REG-PROF-DIRE.
+           MOVE "4444-4444" TO REG-PROF-TEL.
+           WRITE REG-PROF.
+
+           MOVE "00005" TO REG-PROF-NUMERO.
+           MOVE 55555555 TO REG-PROF-DNI.
+           MOVE "Profesor 5" TO REG-PROF-NOMBRE.
+           MOVE "Direccion 5" TO REG-PROF-DIRE.
+           MOVE "5555-5555" TO REG-PROF-TEL.
+           WRITE REG-PROF.
+
+       CARGO-TARIFAS.
+           MOVE "0001" TO REG-TAR-TIP_CLASE.
+           MOVE 20150101 TO REG-TAR-VIG-DES.
+           MOVE 2 TO REG-TAR-TARIFA.
+           WRITE REG-TAR.
+
+           MOVE "0003" TO REG-TAR-TIP_CLASE.
+           MOVE 20150101 TO REG-TAR-VIG-DES.
+           MOVE 2 TO REG-TAR-TARIFA.
+           WRITE REG-TAR.
+           MOVE "0003" TO REG-TAR-TIP_CLASE.
+           MOVE 20150601 TO REG-TAR-VIG-DES.
+           MOVE 3 TO REG-TAR-TARIFA.
+           WRITE REG-TAR.
+
+           MOVE "0004" TO REG-TAR-TIP_CLASE.
+           MOVE 20150101 TO REG-TAR-VIG-DES.
+           MOVE 2 TO REG-TAR-TARIFA.
+           WRITE REG-TAR.
+           MOVE "0004" TO REG-TAR-TIP_CLASE.
+           MOVE 20160601 TO REG-TAR-VIG-DES.
+           MOVE 3 TO REG-TAR-TARIFA.
+           WRITE REG-TAR.
+
+           MOVE "0005" TO REG-TAR-TIP_CLASE.
+           MOVE 20160601 TO REG-TAR-VIG-DES.
+           MOVE 3 TO REG-TAR-TARIFA.
+           WRITE REG-TAR.
+
+       CARGO-SUCURSALES.
+
+       FIN.
+           CLOSE NOVTIMES.
+           CLOSE PARAMETROS.
+           CLOSE PROFESORES.
+           CLOSE TARIFAS.
+           CLOSE SUCURSALES.
+
+       END PROGRAM GENERADOR-TP2.
