@@ -254,13 +254,13 @@
                STOP RUN
            END-IF.
 
-      *     MOVE 1 TO SUC-ACCION.
-      *     CALL 'sucursales' USING SUCURSAL.
-      *     IF (SUC-OK) THEN
-      *         DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
-      *         PERFORM FIN-ENTRADA
-      *         STOP RUN
-      *     END-IF.
+           MOVE 1 TO SUC-ACCION.
+           CALL 'SUCURSALES' USING SUCURSAL.
+           IF (NOT SUC-OK) THEN
+               DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
 
        LEO-PARAMETROS.
            READ PARAMETROS RECORD INTO REG-PAR.
@@ -290,16 +290,14 @@
            END-IF.
 
        BUSCO-SUCURSAL.
-           MOVE "FRUTA" TO SUC-RAZON.
-           MOVE 00 TO SUC-ESTADO.
-      *     MOVE REG-TIM-CUIT TO SUC-CUIT.
-      *     MOVE 2 TO SUC-ACCION.
-      *     CALL 'sucursales' USING SUCURSAL.
-      *     IF NOT (SUC-OK) THEN
-      *         DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
-      *         PERFORM FIN-ENTRADA
-      *         STOP RUN
-      *     END-IF.
+           MOVE REG-TIM-CUIT TO SUC-CUIT.
+           MOVE 2 TO SUC-ACCION.
+           CALL 'SUCURSALES' USING SUCURSAL.
+           IF (NOT SUC-OK) THEN
+               DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
 
        LIBERA-REGISTRO.
            MOVE REG-TIM-NUMERO TO REG-ORD-NUMERO.
@@ -314,13 +312,13 @@
            CLOSE NOVTIMES.
            CLOSE PARAMETROS.
 
-      *     MOVE 2 TO SUC-ACCION.
-      *     CALL 'sucursales' USING SUCURSAL.
-      *     IF (SUC-OK) THEN
-      *         DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
-      *         PERFORM FIN-ENTRADA
-      *         STOP RUN
-      *     END-IF.
+           MOVE 3 TO SUC-ACCION.
+           CALL 'SUCURSALES' USING SUCURSAL.
+           IF (NOT SUC-OK) THEN
+               DISPLAY "ERROR EN CALL SUCURSALES: " SUC-ESTADO
+               PERFORM FIN-ENTRADA
+               STOP RUN
+           END-IF.
 
        SALIDA SECTION.
        PROCESO-SALIDA.
@@ -334,6 +332,10 @@
 
        SALIDA-PROCESOS SECTION.
        INICIO-SALIDA.
+           ACCEPT WS-FECHA-ACT FROM DATE YYYYMMDD.
+           MOVE WS-FECHA-ACT-DD TO PTR-CAB-DD.
+           MOVE WS-FECHA-ACT-MM TO PTR-CAB-MM.
+           MOVE WS-FECHA-ACT-AA TO PTR-CAB-AA.
            MOVE ZERO TO WS-TOT-HOJAS.
 
            OPEN INPUT PROFESORES.
@@ -488,13 +490,6 @@
            READ TARIFAS NEXT RECORD INTO REG-TAR.
 
        ASIGNO-TARIFA-ACT.
-      *     DISPLAY "*******************".
-      *     DISPLAY REG-ORD-TIP_CLASE.
-      *     DISPLAY REG-TAR-TIP_CLASE.
-      *     DISPLAY REG-ORD-FECHA.
-      *     DISPLAY REG-TAR-VIG-DES.
-      *     DISPLAY "*******************".
-
            MOVE REG-TAR TO WS-TAR-ACTUAL.
            PERFORM LEO-TARIFA.
 

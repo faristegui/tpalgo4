@@ -259,6 +259,33 @@
            WRITE REG-TAR.
 
        CARGO-SUCURSALES.
+           MOVE "001" TO REG-SUC-SUCURSAL.
+           MOVE "Sucursal 1" TO REG-SUC-RAZON.
+           MOVE "Direccion 1" TO REG-SUC-DIRE.
+           MOVE "1111-1111" TO REG-SUC-TEL.
+           MOVE 11111111111 TO REG-SUC-CUIT.
+           WRITE REG-SUC.
+
+           MOVE "002" TO REG-SUC-SUCURSAL.
+           MOVE "Sucursal 2" TO REG-SUC-RAZON.
+           MOVE "Direccion 2" TO REG-SUC-DIRE.
+           MOVE "2222-2222" TO REG-SUC-TEL.
+           MOVE 22222222222 TO REG-SUC-CUIT.
+           WRITE REG-SUC.
+
+           MOVE "003" TO REG-SUC-SUCURSAL.
+           MOVE "Sucursal 3" TO REG-SUC-RAZON.
+           MOVE "Direccion 3" TO REG-SUC-DIRE.
+           MOVE "3333-3333" TO REG-SUC-TEL.
+           MOVE 33333333333 TO REG-SUC-CUIT.
+           WRITE REG-SUC.
+
+           MOVE "005" TO REG-SUC-SUCURSAL.
+           MOVE "Sucursal 5" TO REG-SUC-RAZON.
+           MOVE "Direccion 5" TO REG-SUC-DIRE.
+           MOVE "5555-5555" TO REG-SUC-TEL.
+           MOVE 55555555555 TO REG-SUC-CUIT.
+           WRITE REG-SUC.
 
        FIN.
            CLOSE NOVTIMES.
