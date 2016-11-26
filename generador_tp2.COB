@@ -162,6 +162,20 @@
            MOVE "0001" TO REG-TIM-TIP_CLASE.
            MOVE 2,5 TO REG-TIM-HORAS.
            WRITE REG-TIM.
+           MOVE "00001" TO REG-TIM-NUMERO.
+           MOVE 20160102 TO REG-TIM-FECHA.
+           MOVE 11111111111 TO REG-TIM-CUIT.
+           MOVE 1111 TO REG-TIM-SEC.
+           MOVE "0001" TO REG-TIM-TIP_CLASE.
+           MOVE 2,5 TO REG-TIM-HORAS.
+           WRITE REG-TIM.
+           MOVE "00001" TO REG-TIM-NUMERO.
+           MOVE 20160103 TO REG-TIM-FECHA.
+           MOVE 11111111111 TO REG-TIM-CUIT.
+           MOVE 1111 TO REG-TIM-SEC.
+           MOVE "0001" TO REG-TIM-TIP_CLASE.
+           MOVE 2,5 TO REG-TIM-HORAS.
+           WRITE REG-TIM.
 
            MOVE "00002" TO REG-TIM-NUMERO.
            MOVE 20160101 TO REG-TIM-FECHA.
@@ -170,8 +184,22 @@
            MOVE "0002" TO REG-TIM-TIP_CLASE.
            MOVE 2,5 TO REG-TIM-HORAS.
            WRITE REG-TIM.
+           MOVE "00002" TO REG-TIM-NUMERO.
+           MOVE 20160101 TO REG-TIM-FECHA.
+           MOVE 22222222222 TO REG-TIM-CUIT.
+           MOVE 2222 TO REG-TIM-SEC.
+           MOVE "0002" TO REG-TIM-TIP_CLASE.
+           MOVE 2,5 TO REG-TIM-HORAS.
+           WRITE REG-TIM.
 
            MOVE "00003" TO REG-TIM-NUMERO.
+           MOVE 20160101 TO REG-TIM-FECHA.
+           MOVE 33333333333 TO REG-TIM-CUIT.
+           MOVE 1111 TO REG-TIM-SEC.
+           MOVE "0003" TO REG-TIM-TIP_CLASE.
+           MOVE 2,5 TO REG-TIM-HORAS.
+           WRITE REG-TIM.
+           MOVE "00004" TO REG-TIM-NUMERO.
            MOVE 20160101 TO REG-TIM-FECHA.
            MOVE 33333333333 TO REG-TIM-CUIT.
            MOVE 1111 TO REG-TIM-SEC.
@@ -260,7 +288,7 @@
 
        CARGO-SUCURSALES.
            MOVE "001" TO REG-SUC-SUCURSAL.
-           MOVE "Sucursal 1" TO REG-SUC-RAZON.
+           MOVE "Sucursal repetida" TO REG-SUC-RAZON.
            MOVE "Direccion 1" TO REG-SUC-DIRE.
            MOVE "1111-1111" TO REG-SUC-TEL.
            MOVE 11111111111 TO REG-SUC-CUIT.
@@ -274,7 +302,7 @@
            WRITE REG-SUC.
 
            MOVE "003" TO REG-SUC-SUCURSAL.
-           MOVE "Sucursal 3" TO REG-SUC-RAZON.
+           MOVE "Sucursal repetida" TO REG-SUC-RAZON.
            MOVE "Direccion 3" TO REG-SUC-DIRE.
            MOVE "3333-3333" TO REG-SUC-TEL.
            MOVE 33333333333 TO REG-SUC-CUIT.
