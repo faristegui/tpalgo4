@@ -126,7 +126,7 @@
 
        77  WS-TIP-INDICE PIC 9(4).
        01  TAB-TIP_CLASE.
-           03 TAB-TIP OCCURS 50 TIMES.
+           03 TAB-TIP OCCURS 50 TIMES INDEXED BY I.
               05 TAB-TIP-TIP_CLASE PIC X(4).
               05 TAB-TIP-DESC      PIC X(20).
               05 TAB-TIP-TARIFA    PIC 9(5)V99.
@@ -523,14 +523,12 @@
            PERFORM IMPRIMO-NOV.
 
        BUSCO-TIPO_CLASE.
-           MOVE 1 TO WS-TIP-INDICE.
-           PERFORM
-           UNTIL
-               (TAB-TIP-TIP_CLASE(WS-TIP-INDICE) = WS-NOV-ACT-TIP_CLASE)
-               ADD 1 TO WS-TIP-INDICE
-           END-PERFORM.
-           MOVE TAB-TIP-DESC(WS-TIP-INDICE) TO WS-TIP-ACT-DESC.
-           MOVE TAB-TIP-TARIFA(WS-TIP-INDICE) TO WS-TIP-ACT-TARIFA.
+           SET I TO 1.
+           SEARCH TAB-TIP
+                  WHEN TAB-TIP-TIP_CLASE(I) = WS-NOV-ACT-TIP_CLASE
+                       MOVE TAB-TIP-DESC(I) TO WS-TIP-ACT-DESC
+                       MOVE TAB-TIP-TARIFA(I) TO WS-TIP-ACT-TARIFA
+           END-SEARCH.
 
        IMPRIMO-CAB.
            ADD 1 TO WS-TOT-HOJAS.

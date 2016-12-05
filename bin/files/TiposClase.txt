@@ -1,14 +1,14 @@
 0010Spinning            0000200
-0013Stretching          0000200
-0014Step                0000200
-0005Crossfit            0000200
-0012KickBoxing          0000200
-0008AquaGym             0000200
-0003Danza Mambo         0000200
-0007Pilates             0000200
+0013Stretching          0000300
+0014Step                0000400
+0005Crossfit            0000500
+0012KickBoxing          0000600
+0008AquaGym             0000700
+0003Danza Mambo         0000800
+0007Pilates             0000900
 0001Gimnasia Localizada 0000200
-0006Danza Lambada       0000200
-0009Body Pump           0000200
-0002Gimnasia Artistica  0000200
-0004Musculacion         0000200
-0011Entrenamiento       0000200
+0006Danza Lambada       0000300
+0009Body Pump           0000400
+0002Gimnasia Artistica  0000500
+0004Musculacion         0000600
+0011Entrenamiento       0000700

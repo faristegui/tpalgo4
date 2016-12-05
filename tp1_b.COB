@@ -55,7 +55,7 @@
        01  WS-SUC-ANIO-INDICE PIC 9(4).
        01  WS-SUC-MES-INDICE  PIC 9(2).
        01  TAB-SUCURSALES.
-           03 TAB-SUC OCCURS 3 TIMES.
+           03 TAB-SUC OCCURS 3 TIMES INDEXED BY I.
               05 TAB-SUC-SUCURSAL            PIC X(3).
               05 TAB-SUC-RAZON               PIC X(25).
               05 TAB-SUC-ANIO OCCURS 5 TIMES.
@@ -253,6 +253,8 @@
                SUBTRACT WS-SUC-ANIO-INDICE
                         FROM TAB-SUC-ANIO-ANIO(WS-SUC-INDICE,
                                                WS-SUC-ANIO-INDICE)
+               ADD 1 TO TAB-SUC-ANIO-ANIO(WS-SUC-INDICE,
+                                          WS-SUC-ANIO-INDICE)
                ADD 1 TO WS-SUC-ANIO-INDICE
            END-PERFORM.
 
@@ -273,11 +275,11 @@
            PERFORM LEO-NOVTIMES.
 
        BUSCO-SUCURSAL.
-           MOVE 1 TO WS-SUC-INDICE.
-           PERFORM
-           UNTIL TAB-SUC-SUCURSAL(WS-SUC-INDICE) = REG-NOV-SUCURSAL
-               ADD 1 TO WS-SUC-INDICE
-           END-PERFORM.
+           SET I TO 1.
+           SEARCH TAB-SUC
+                  WHEN TAB-SUC-SUCURSAL(I) = REG-NOV-SUCURSAL
+                       MOVE I TO WS-SUC-INDICE
+           END-SEARCH.
 
        BUSCO-ANIO.
            MOVE WS-FECHA-ACT-AA TO WS-SUC-ANIO-INDICE.
@@ -345,7 +347,7 @@
                                           WS-SUC-ANIO-INDICE,
                                           10)
                     TO PTR-SUC-DET-OCT
-               MOVE TAB-SUC-MES-TOT-HORAS(WS-SUC-INDICSUC-DET-E,
+               MOVE TAB-SUC-MES-TOT-HORAS(WS-SUC-INDICE,
                                           WS-SUC-ANIO-INDICE,
                                           11)
                     TO PTR-SUC-DET-NOV

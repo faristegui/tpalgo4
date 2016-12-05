@@ -11,6 +11,7 @@
        FILE-CONTROL.
            SELECT SUCURSALES ASSIGN TO DISK
            ORGANIZATION IS INDEXED
+           ACCESS MODE IS RANDOM
            RECORD KEY IS REG-SUC-SUCURSAL
            ALTERNATE RECORD KEY IS REG-SUC-CUIT
            ALTERNATE RECORD KEY IS REG-SUC-RAZON WITH DUPLICATES
@@ -50,7 +51,7 @@
            IF (SUC-ACCION = 1) THEN
                PERFORM INICIO
            ELSE IF (SUC-ACCION = 2) THEN
-               PERFORM BUSCAR
+               PERFORM BUSCO
            ELSE IF (SUC-ACCION = 3) THEN
                PERFORM FIN
            ELSE
@@ -61,21 +62,15 @@
        INICIO.
            OPEN INPUT SUCURSALES.
 
-       BUSCAR.
-           PERFORM POSICIONO.
-           IF (SUC-OK) THEN
-               PERFORM LEO
-           END-IF.
+       BUSCO.
+           PERFORM LEO
            MOVE REG-SUC-RAZON TO SUC-RAZON.
            MOVE 00 TO SUC-ESTADO.
 
-       POSICIONO.
+       LEO.
            MOVE WS-SUC-GENERICA TO REG-SUC.
            MOVE SUC-CUIT TO REG-SUC-CUIT.
-           START SUCURSALES KEY IS = REG-SUC-CUIT.
-
-       LEO.
-           READ SUCURSALES NEXT RECORD INTO REG-SUC.
+           READ SUCURSALES RECORD INTO REG-SUC KEY IS REG-SUC-CUIT.
 
        FIN.
            CLOSE SUCURSALES.
